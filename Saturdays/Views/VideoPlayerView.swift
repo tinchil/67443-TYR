@@ -16,7 +16,7 @@ struct VideoPlayerView: View {
         NavigationView {
             VideoPlayer(player: AVPlayer(url: url))
                 .navigationTitle("Preview")
-                .navigationBarTitleDisplayMode(.inline as NavigationBarItem.TitleDisplayMode)
+                .navigationBarTitleDisplayMode(.inline)
                 .toolbar {
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button("Done") {
