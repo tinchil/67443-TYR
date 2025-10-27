@@ -4,61 +4,101 @@ import AVKit
 
 struct ContentView: View {
     @StateObject private var locationManager = LocationManager()
+    @StateObject private var photoLoader = PhotoLoader()
     @State private var selectedItems: [PhotosPickerItem] = []
-    @State private var photos: [PhotoItem] = []
-    @State private var isCreatingVideo = false
+    @State private var isCreatingVideoFor: UUID? = nil
     @State private var videoURL: URL?
     @State private var showVideoPlayer = false
-    @State private var statusMessage = ""
-    
+
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-                // Status
-                if !statusMessage.isEmpty {
-                    Text(statusMessage)
+
+                // Status message
+                if !photoLoader.statusMessage.isEmpty {
+                    Text(photoLoader.statusMessage)
                         .font(.caption)
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
-                        .padding()
+                        .padding(.horizontal)
                 }
-                
-                // Photo Grid
-                if !photos.isEmpty {
+
+                // Event-based grid view
+                if !photoLoader.events.isEmpty {
                     ScrollView {
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 10) {
-                            ForEach(photos) { photo in
-                                VStack {
-                                    Image(uiImage: photo.image)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: 100, height: 100)
-                                        .clipped()
-                                        .cornerRadius(8)
-                                    
-                                    if let location = photo.location {
-                                        Text("📍 \(String(format: "%.4f", location.coordinate.latitude)), \(String(format: "%.4f", location.coordinate.longitude))")
-                                            .font(.caption2)
-                                            .lineLimit(1)
-                                    } else {
-                                        Text("No location")
-                                            .font(.caption2)
+                        ForEach(photoLoader.events) { event in
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Text("📅 \(event.startDate.formatted(date: .abbreviated, time: .shortened))")
+                                        .font(.headline)
+                                    if let loc = event.centerLocation {
+                                        Text("• \(String(format: "%.4f", loc.coordinate.latitude)), \(String(format: "%.4f", loc.coordinate.longitude))")
+                                            .font(.caption)
                                             .foregroundColor(.secondary)
                                     }
+                                    Spacer()
+
+                                    // Per-event video button
+                                    Button {
+                                        createVideo(for: event)
+                                    } label: {
+                                        HStack(spacing: 4) {
+                                            if isCreatingVideoFor == event.id {
+                                                ProgressView()
+                                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                            } else {
+                                                Image(systemName: "video.badge.plus")
+                                            }
+                                            Text("Create Video")
+                                                .font(.caption)
+                                                .bold()
+                                        }
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(isCreatingVideoFor == event.id ? Color.gray : Color.green)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(8)
+                                    }
+                                    .disabled(isCreatingVideoFor != nil)
                                 }
+                                .padding(.horizontal)
+
+                                LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 10) {
+                                    ForEach(event.photos) { photo in
+                                        Image(uiImage: photo.image)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 100, height: 100)
+                                            .cornerRadius(8)
+                                    }
+                                }
+                            }
+                            .padding(.bottom, 12)
+                        }
+                        .padding(.horizontal)
+                    }
+                } else if !photoLoader.photos.isEmpty {
+                    // Fallback: single grid when clustering not available
+                    ScrollView {
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 10) {
+                            ForEach(photoLoader.photos) { photo in
+                                Image(uiImage: photo.image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 100)
+                                    .cornerRadius(8)
                             }
                         }
                         .padding()
                     }
                 }
-                
+
                 Spacer()
-                
-                // Buttons
-                VStack(spacing: 15) {
+
+                // Action buttons
+                VStack(spacing: 12) {
                     PhotosPicker(
                         selection: $selectedItems,
-                        maxSelectionCount: 10,
                         matching: .images
                     ) {
                         Label("Select Photos", systemImage: "photo.on.rectangle.angled")
@@ -68,26 +108,11 @@ struct ContentView: View {
                             .foregroundColor(.white)
                             .cornerRadius(10)
                     }
-                    
-                    if !photos.isEmpty {
-                        Button(action: createVideo) {
-                            HStack {
-                                if isCreatingVideo {
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                } else {
-                                    Label("Create Video", systemImage: "video.badge.plus")
-                                }
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(isCreatingVideo ? Color.gray : Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                        }
-                        .disabled(isCreatingVideo)
-                        
-                        Button(action: { photos.removeAll() }) {
+
+                    if !photoLoader.photos.isEmpty {
+                        Button(role: .destructive) {
+                            photoLoader.clearPhotos()
+                        } label: {
                             Label("Clear All", systemImage: "trash")
                                 .frame(maxWidth: .infinity)
                                 .padding()
@@ -97,7 +122,7 @@ struct ContentView: View {
                         }
                     }
                 }
-                .padding()
+                .padding(.horizontal)
             }
             .navigationTitle("Saturdays POC")
             .onAppear {
@@ -105,7 +130,7 @@ struct ContentView: View {
                 locationManager.startUpdating()
             }
             .onChange(of: selectedItems) { newItems in
-                loadPhotos(from: newItems)
+                Task { await photoLoader.loadPhotos(from: newItems) }
             }
             .sheet(isPresented: $showVideoPlayer) {
                 if let url = videoURL {
@@ -114,46 +139,20 @@ struct ContentView: View {
             }
         }
     }
-    
-    private func loadPhotos(from items: [PhotosPickerItem]) {
-        statusMessage = "Loading photos..."
-        
-        for item in items {
-            item.loadTransferable(type: Data.self) { result in
-                DispatchQueue.main.async {
-                    switch result {
-                    case .success(let data):
-                        if let data = data, let uiImage = UIImage(data: data) {
-                            let photoItem = PhotoItem(
-                                image: uiImage,
-                                location: locationManager.currentLocation,
-                                timestamp: Date()
-                            )
-                            photos.append(photoItem)
-                            statusMessage = "Loaded \(photos.count) photo(s)"
-                        }
-                    case .failure(let error):
-                        statusMessage = "Error loading photo: \(error.localizedDescription)"
-                    }
-                }
-            }
-        }
-    }
-    
-    private func createVideo() {
-        isCreatingVideo = true
-        statusMessage = "Creating video compilation..."
-        
-        VideoCreator.createVideo(from: photos) { url in
-            DispatchQueue.main.async {
-                isCreatingVideo = false
-                if let url = url {
-                    videoURL = url
-                    showVideoPlayer = true
-                    statusMessage = "Video created successfully!"
-                } else {
-                    statusMessage = "Failed to create video"
-                }
+
+    // MARK: - Create Video for a Single Event
+    private func createVideo(for event: PhotoEvent) {
+        isCreatingVideoFor = event.id
+        photoLoader.statusMessage = "Creating video for event..."
+
+        VideoCreator.createVideo(from: event.photos) { url in
+            isCreatingVideoFor = nil
+            if let url = url {
+                videoURL = url
+                showVideoPlayer = true
+                photoLoader.statusMessage = "Video created successfully!"
+            } else {
+                photoLoader.statusMessage = "Failed to create video."
             }
         }
     }
