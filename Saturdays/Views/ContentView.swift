@@ -59,7 +59,6 @@ struct ContentView: View {
                         }
                         .padding()
                     }
-                    .background(Color(UIColor.systemBackground))
                 }
 
                 Spacer()
@@ -117,9 +116,7 @@ struct ContentView: View {
                 locationManager.startUpdating()
             }
             .onChange(of: selectedItems) { newItems in
-                Task {
-                    await photoLoader.loadPhotos(from: newItems)
-                }
+                Task { await photoLoader.loadPhotos(from: newItems) }
             }
             .sheet(isPresented: $showVideoPlayer) {
                 if let url = videoURL {
@@ -130,21 +127,18 @@ struct ContentView: View {
     }
 
     // MARK: - Video Creation
-
     private func createVideo() {
         isCreatingVideo = true
         photoLoader.statusMessage = "Creating video compilation..."
 
         VideoCreator.createVideo(from: photoLoader.photos) { url in
-            DispatchQueue.main.async {
-                isCreatingVideo = false
-                if let url = url {
-                    videoURL = url
-                    showVideoPlayer = true
-                    photoLoader.statusMessage = "Video created successfully!"
-                } else {
-                    photoLoader.statusMessage = "Failed to create video."
-                }
+            isCreatingVideo = false
+            if let url = url {
+                videoURL = url
+                showVideoPlayer = true
+                photoLoader.statusMessage = "Video created successfully!"
+            } else {
+                photoLoader.statusMessage = "Failed to create video."
             }
         }
     }
