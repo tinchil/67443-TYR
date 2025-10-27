@@ -23,38 +23,46 @@ struct ContentView: View {
                         .padding(.horizontal)
                 }
 
-                // Photo grid
-                if !photoLoader.photos.isEmpty {
+                // Event-based grid view
+                if !photoLoader.events.isEmpty {
                     ScrollView {
-                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 10) {
-                            ForEach(photoLoader.photos) { photo in
-                                VStack(spacing: 4) {
-                                    ZStack {
-                                        Rectangle()
-                                            .fill(Color.gray.opacity(0.15))
-                                            .frame(width: 100, height: 100)
-                                            .cornerRadius(8)
-
-                                        Image(uiImage: photo.image)
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 100, height: 100)
-                                            .cornerRadius(8)
-                                    }
-
-                                    if let loc = photo.location {
-                                        Text("📍 \(String(format: "%.4f", loc.coordinate.latitude)), \(String(format: "%.4f", loc.coordinate.longitude))")
-                                            .font(.caption2)
-                                            .lineLimit(1)
-                                    } else {
-                                        Text("No location")
-                                            .font(.caption2)
+                        ForEach(photoLoader.events) { event in
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    Text("📅 \(event.startDate.formatted(date: .abbreviated, time: .shortened))")
+                                        .font(.headline)
+                                    if let loc = event.centerLocation {
+                                        Text("• \(String(format: "%.4f", loc.coordinate.latitude)), \(String(format: "%.4f", loc.coordinate.longitude))")
+                                            .font(.caption)
                                             .foregroundColor(.secondary)
                                     }
                                 }
-                                .background(Color.white)
-                                .cornerRadius(8)
-                                .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+                                .padding(.horizontal)
+
+                                LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 10) {
+                                    ForEach(event.photos) { photo in
+                                        Image(uiImage: photo.image)
+                                            .resizable()
+                                            .scaledToFill()
+                                            .frame(width: 100, height: 100)
+                                            .cornerRadius(8)
+                                    }
+                                }
+                            }
+                            .padding(.bottom, 12)
+                        }
+                        .padding(.horizontal)
+                    }
+                } else if !photoLoader.photos.isEmpty {
+                    // Fallback: single event (no GPS metadata)
+                    ScrollView {
+                        LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 10) {
+                            ForEach(photoLoader.photos) { photo in
+                                Image(uiImage: photo.image)
+                                    .resizable()
+                                    .scaledToFill()
+                                    .frame(width: 100, height: 100)
+                                    .cornerRadius(8)
                             }
                         }
                         .padding()
@@ -67,7 +75,7 @@ struct ContentView: View {
                 VStack(spacing: 12) {
                     PhotosPicker(
                         selection: $selectedItems,
-                        maxSelectionCount: 10,
+                        maxSelectionCount: 50,
                         matching: .images
                     ) {
                         Label("Select Photos", systemImage: "photo.on.rectangle.angled")

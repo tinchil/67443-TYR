@@ -26,4 +26,5 @@ class PhotoMetadataExtractor {
         let finalLon = lonRef == "W" ? -lon : lon
         return CLLocation(latitude: finalLat, longitude: finalLon)
     }
+    
 }
