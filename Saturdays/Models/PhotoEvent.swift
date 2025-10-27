@@ -19,8 +19,8 @@ struct PhotoEvent: Identifiable {
 
 class EventClusterer {
     static func cluster(photos: [PhotoItem],
-                        timeThreshold: TimeInterval = 3 * 3600,
-                        distanceThreshold: CLLocationDistance = 100) -> [PhotoEvent] {
+                        timeThreshold: TimeInterval = 6 * 3600,
+                        distanceThreshold: CLLocationDistance = 500) -> [PhotoEvent] {
         guard !photos.isEmpty else { return [] }
 
         // Sort by timestamp
@@ -33,8 +33,7 @@ class EventClusterer {
             let timeDiff = photo.timestamp.timeIntervalSince(last.timestamp)
             let distDiff = distanceBetween(photo.location, last.location)
 
-            if timeDiff > timeThreshold || distDiff > distanceThreshold {
-                // start new event
+            if timeDiff > timeThreshold && distDiff > distanceThreshold {
                 events.append([photo])
             } else {
                 // continue current event

@@ -38,7 +38,8 @@ class PhotoLoader: ObservableObject {
                         }
 
                         let location = self.metadataExtractor.extractGPS(from: data)
-                        let photo = PhotoItem(image: image, location: location, timestamp: Date())
+                        let timestamp = self.metadataExtractor.extractDate(from: data) ?? Date()
+                        let photo = PhotoItem(image: image, location: location, timestamp: timestamp)
                         self.photos.append(photo)
                         self.statusMessage = "Loaded \(self.photos.count) photo(s)"
 
