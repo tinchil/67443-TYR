@@ -6,7 +6,7 @@ struct ContentView: View {
     @StateObject private var locationManager = LocationManager()
     @StateObject private var photoLoader = PhotoLoader()
     @State private var selectedItems: [PhotosPickerItem] = []
-    @State private var isCreatingVideo = false
+    @State private var isCreatingVideoFor: UUID? = nil
     @State private var videoURL: URL?
     @State private var showVideoPlayer = false
 
@@ -36,6 +36,30 @@ struct ContentView: View {
                                             .font(.caption)
                                             .foregroundColor(.secondary)
                                     }
+                                    Spacer()
+
+                                    // Per-event video button
+                                    Button {
+                                        createVideo(for: event)
+                                    } label: {
+                                        HStack(spacing: 4) {
+                                            if isCreatingVideoFor == event.id {
+                                                ProgressView()
+                                                    .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                                            } else {
+                                                Image(systemName: "video.badge.plus")
+                                            }
+                                            Text("Create Video")
+                                                .font(.caption)
+                                                .bold()
+                                        }
+                                        .padding(.horizontal, 10)
+                                        .padding(.vertical, 6)
+                                        .background(isCreatingVideoFor == event.id ? Color.gray : Color.green)
+                                        .foregroundColor(.white)
+                                        .cornerRadius(8)
+                                    }
+                                    .disabled(isCreatingVideoFor != nil)
                                 }
                                 .padding(.horizontal)
 
@@ -54,7 +78,7 @@ struct ContentView: View {
                         .padding(.horizontal)
                     }
                 } else if !photoLoader.photos.isEmpty {
-                    // Fallback: single event (no GPS metadata)
+                    // Fallback: single grid when clustering not available
                     ScrollView {
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 10) {
                             ForEach(photoLoader.photos) { photo in
@@ -75,7 +99,6 @@ struct ContentView: View {
                 VStack(spacing: 12) {
                     PhotosPicker(
                         selection: $selectedItems,
-                        maxSelectionCount: 50,
                         matching: .images
                     ) {
                         Label("Select Photos", systemImage: "photo.on.rectangle.angled")
@@ -87,23 +110,6 @@ struct ContentView: View {
                     }
 
                     if !photoLoader.photos.isEmpty {
-                        Button(action: createVideo) {
-                            HStack {
-                                if isCreatingVideo {
-                                    ProgressView()
-                                        .progressViewStyle(CircularProgressViewStyle(tint: .white))
-                                } else {
-                                    Label("Create Video", systemImage: "video.badge.plus")
-                                }
-                            }
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(isCreatingVideo ? Color.gray : Color.green)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                        }
-                        .disabled(isCreatingVideo)
-
                         Button(role: .destructive) {
                             photoLoader.clearPhotos()
                         } label: {
@@ -134,13 +140,13 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - Video Creation
-    private func createVideo() {
-        isCreatingVideo = true
-        photoLoader.statusMessage = "Creating video compilation..."
+    // MARK: - Create Video for a Single Event
+    private func createVideo(for event: PhotoEvent) {
+        isCreatingVideoFor = event.id
+        photoLoader.statusMessage = "Creating video for event..."
 
-        VideoCreator.createVideo(from: photoLoader.photos) { url in
-            isCreatingVideo = false
+        VideoCreator.createVideo(from: event.photos) { url in
+            isCreatingVideoFor = nil
             if let url = url {
                 videoURL = url
                 showVideoPlayer = true
