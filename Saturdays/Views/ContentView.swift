@@ -13,7 +13,6 @@ struct ContentView: View {
     var body: some View {
         NavigationView {
             VStack(spacing: 20) {
-
                 // Status message
                 if !photoLoader.statusMessage.isEmpty {
                     Text(photoLoader.statusMessage)
@@ -38,7 +37,6 @@ struct ContentView: View {
                                     }
                                     Spacer()
 
-                                    // Per-event video button
                                     Button {
                                         createVideo(for: event)
                                     } label: {
@@ -78,7 +76,6 @@ struct ContentView: View {
                         .padding(.horizontal)
                     }
                 } else if !photoLoader.photos.isEmpty {
-                    // Fallback: single grid when clustering not available
                     ScrollView {
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 100))], spacing: 10) {
                             ForEach(photoLoader.photos) { photo in
@@ -97,10 +94,7 @@ struct ContentView: View {
 
                 // Action buttons
                 VStack(spacing: 12) {
-                    PhotosPicker(
-                        selection: $selectedItems,
-                        matching: .images
-                    ) {
+                    PhotosPicker(selection: $selectedItems, matching: .images) {
                         Label("Select Photos", systemImage: "photo.on.rectangle.angled")
                             .frame(maxWidth: .infinity)
                             .padding()
@@ -130,7 +124,7 @@ struct ContentView: View {
                 locationManager.startUpdating()
             }
             .onChange(of: selectedItems) { newItems in
-                Task { await photoLoader.loadPhotos(from: newItems) }
+                Task { photoLoader.loadPhotos(from: newItems) }
             }
             .sheet(isPresented: $showVideoPlayer) {
                 if let url = videoURL {
