@@ -48,12 +48,16 @@ class CapsuleViewModel: ObservableObject {
         groups.removeAll(where: { $0.id == groupId })
     }
 
-    /// Checks if a capsule is locked
+    /// Checks if a capsule is locked based on its reveal date
     func isCapsuleLocked(groupId: UUID) -> Bool {
         guard let group = getGroup(by: groupId),
               let capsule = group.capsule else { return true }
-        return capsule.lockPeriod > Date()
+
+        // Treat revealDate as the actual unlock date
+        let endOfDay = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: capsule.revealDate) ?? capsule.revealDate
+        return endOfDay > Date()   // true = locked, false = unlocked
     }
+
 
     /// Gets the count of photos in a capsule
     func photoCount(for groupId: UUID) -> Int {

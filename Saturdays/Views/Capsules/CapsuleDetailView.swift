@@ -96,12 +96,12 @@ struct CapsuleDetailView: View {
 
                     if isLocked {
                         VStack(spacing: 12) {
-                            Image(systemName: "lock.fill")
+                            Image(systemName: "hourglass")
                                 .font(.system(size: 50))
                                 .foregroundColor(.gray)
-                            Text("This capsule is locked")
+                            Text("Your capsule will unlock soon!")
                                 .font(.headline)
-                            Text("Unlocks on \(capsule.lockPeriod.formatted(date: .abbreviated, time: .omitted))")
+                            Text("Unlocks on \(capsule.revealDate.formatted(date: .abbreviated, time: .omitted))")
                                 .font(.subheadline)
                                 .foregroundColor(.secondary)
                         }
@@ -132,7 +132,6 @@ struct CapsuleDetailView: View {
                             }
                         }
                     }
-
                 }
             }
         }
