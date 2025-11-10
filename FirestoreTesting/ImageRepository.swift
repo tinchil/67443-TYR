@@ -101,3 +101,34 @@ class ImageRepository: ObservableObject {
         }
     }
 }
+
+
+{
+  "users": {
+    "uid_123": {
+      "name": "Tin Lo",
+      "email": "tin@example.com",
+      "profileImageURL": "https://...",
+      "joinedGroups": ["group_001", "group_002"]
+    }
+  },
+  "groups": {
+    "group_001": {
+      "groupName": "Barcelona Trip",
+      "members": ["uid_123", "uid_456"],
+      "createdAt": "2025-10-01T10:00:00Z",
+      "memories": ["memory_001", "memory_002"]
+    }
+  },
+  "memories": {
+    "memory_001": {
+      "title": "Sagrada Família Visit",
+      "description": "Our first stop in Barcelona!",
+      "photoURLs": ["https://..."],
+      "creatorID": "uid_123",
+      "groupID": "group_001",
+      "locked": false,
+      "dateCreated": "2025-10-02T11:30:00Z"
+    }
+  }
+}
