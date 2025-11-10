@@ -62,3 +62,34 @@ class CapsuleViewModel: ObservableObject {
         return capsule.photos.count
     }
 }
+
+// MARK: - Video Generation
+extension CapsuleViewModel {
+    func generateVideoIfUnlocked(for groupId: UUID, completion: @escaping (URL?) -> Void) {
+        guard let index = groups.firstIndex(where: { $0.id == groupId }),
+              let capsule = groups[index].capsule else {
+            completion(nil)
+            return
+        }
+
+        // Only generate if unlocked and not already created
+        guard capsule.lockPeriod <= Date(), capsule.videoURL == nil else {
+            completion(capsule.videoURL)
+            return
+        }
+
+        VideoCreator.createVideo(from: capsule.photos) { url in
+            if let url = url {
+                var updatedCapsule = capsule
+                updatedCapsule.videoURL = url
+                self.groups[index].capsule = updatedCapsule
+                DispatchQueue.main.async {
+                    self.objectWillChange.send()
+                    completion(url)
+                }
+            } else {
+                completion(nil)
+            }
+        }
+    }
+}

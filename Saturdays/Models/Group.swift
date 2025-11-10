@@ -24,6 +24,7 @@ struct Capsule: Identifiable {
     var lockPeriod: Date
     var contributionRequirement: ContributionRequirement
     var photos: [PhotoItem]
+    var videoURL: URL? = nil
 }
 
 enum CapsuleType: String, CaseIterable {
