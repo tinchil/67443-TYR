@@ -127,8 +127,14 @@ struct CapsuleDetailView: View {
                         .padding(.horizontal)
                         .padding(.bottom, 20)
                         .sheet(isPresented: $showVideoPlayer) {
-                            if let url = videoURL {
-                                VideoPlayerView(url: url)
+                            if let url = videoURL,
+                               let capsule = group.capsule {
+                                VideoPlayerView(
+                                    url: url,
+                                    capsuleTitle: capsule.name,
+                                    capsuleDescription: capsule.description,
+                                    revealDate: capsule.revealDate
+                                )
                             }
                         }
                     }
