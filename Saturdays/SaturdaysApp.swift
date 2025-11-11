@@ -11,7 +11,7 @@ import SwiftUI
 struct SaturdaysApp: App {
     var body: some Scene {
         WindowGroup {
-            HomePageView()
+            MainTabView()
         }
     }
 }
