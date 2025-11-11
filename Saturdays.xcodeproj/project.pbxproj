@@ -18,8 +18,19 @@
 		F54918562EAEEC410063DD60 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = F54918552EAEEC410063DD60 /* FirebaseStorage */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		F41B70F62EC2AC8D005A4958 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A3A09B532E8B304200E822FE /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A3A09B5A2E8B304200E822FE;
+			remoteInfo = Saturdays;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		A3A09B5B2E8B304200E822FE /* Saturdays.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Saturdays.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		F41B70F22EC2AC8D005A4958 /* SaturdaysTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SaturdaysTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F549181B2EAEE9190063DD60 /* APITesting.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = APITesting.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		F549183C2EAEEBD10063DD60 /* FirestoreTesting.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = FirestoreTesting.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -28,6 +39,11 @@
 		A3A09B5D2E8B304200E822FE /* Saturdays */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Saturdays;
+			sourceTree = "<group>";
+		};
+		F41B70F32EC2AC8D005A4958 /* SaturdaysTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = SaturdaysTests;
 			sourceTree = "<group>";
 		};
 		F549183D2EAEEBD10063DD60 /* FirestoreTesting */ = {
@@ -45,6 +61,13 @@
 				F54918092EAEE3640063DD60 /* FirebaseCore in Frameworks */,
 				F549180B2EAEE3640063DD60 /* FirebaseFirestore in Frameworks */,
 				F549180D2EAEE3640063DD60 /* FirebaseStorage in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F41B70EF2EC2AC8D005A4958 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -76,6 +99,7 @@
 			children = (
 				A3A09B5D2E8B304200E822FE /* Saturdays */,
 				F549183D2EAEEBD10063DD60 /* FirestoreTesting */,
+				F41B70F32EC2AC8D005A4958 /* SaturdaysTests */,
 				F54918312EAEEA030063DD60 /* Frameworks */,
 				A3A09B5C2E8B304200E822FE /* Products */,
 			);
@@ -87,6 +111,7 @@
 				A3A09B5B2E8B304200E822FE /* Saturdays.app */,
 				F549181B2EAEE9190063DD60 /* APITesting.app */,
 				F549183C2EAEEBD10063DD60 /* FirestoreTesting.app */,
+				F41B70F22EC2AC8D005A4958 /* SaturdaysTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -125,6 +150,29 @@
 			productName = Saturdays;
 			productReference = A3A09B5B2E8B304200E822FE /* Saturdays.app */;
 			productType = "com.apple.product-type.application";
+		};
+		F41B70F12EC2AC8D005A4958 /* SaturdaysTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F41B70F82EC2AC8D005A4958 /* Build configuration list for PBXNativeTarget "SaturdaysTests" */;
+			buildPhases = (
+				F41B70EE2EC2AC8D005A4958 /* Sources */,
+				F41B70EF2EC2AC8D005A4958 /* Frameworks */,
+				F41B70F02EC2AC8D005A4958 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				F41B70F72EC2AC8D005A4958 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				F41B70F32EC2AC8D005A4958 /* SaturdaysTests */,
+			);
+			name = SaturdaysTests;
+			packageProductDependencies = (
+			);
+			productName = SaturdaysTests;
+			productReference = F41B70F22EC2AC8D005A4958 /* SaturdaysTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 		F549181A2EAEE9190063DD60 /* APITesting */ = {
 			isa = PBXNativeTarget;
@@ -186,6 +234,10 @@
 					A3A09B5A2E8B304200E822FE = {
 						CreatedOnToolsVersion = 26.0;
 					};
+					F41B70F12EC2AC8D005A4958 = {
+						CreatedOnToolsVersion = 26.0.1;
+						TestTargetID = A3A09B5A2E8B304200E822FE;
+					};
 					F549181A2EAEE9190063DD60 = {
 						CreatedOnToolsVersion = 26.0.1;
 					};
@@ -215,12 +267,20 @@
 				A3A09B5A2E8B304200E822FE /* Saturdays */,
 				F549181A2EAEE9190063DD60 /* APITesting */,
 				F549183B2EAEEBD10063DD60 /* FirestoreTesting */,
+				F41B70F12EC2AC8D005A4958 /* SaturdaysTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		A3A09B592E8B304200E822FE /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		F41B70F02EC2AC8D005A4958 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -251,6 +311,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		F41B70EE2EC2AC8D005A4958 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		F54918172EAEE9190063DD60 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -266,6 +333,14 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		F41B70F72EC2AC8D005A4958 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A3A09B5A2E8B304200E822FE /* Saturdays */;
+			targetProxy = F41B70F62EC2AC8D005A4958 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A3A09B642E8B304200E822FE /* Debug */ = {
@@ -463,6 +538,48 @@
 			};
 			name = Release;
 		};
+		F41B70F92EC2AC8D005A4958 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.cmu.yhe.SaturdaysTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Saturdays.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Saturdays";
+			};
+			name = Debug;
+		};
+		F41B70FA2EC2AC8D005A4958 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = edu.cmu.yhe.SaturdaysTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				STRING_CATALOG_GENERATE_SYMBOLS = NO;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Saturdays.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Saturdays";
+			};
+			name = Release;
+		};
 		F54918242EAEE91A0063DD60 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -608,6 +725,15 @@
 			buildConfigurations = (
 				A3A09B672E8B304200E822FE /* Debug */,
 				A3A09B682E8B304200E822FE /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		F41B70F82EC2AC8D005A4958 /* Build configuration list for PBXNativeTarget "SaturdaysTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F41B70F92EC2AC8D005A4958 /* Debug */,
+				F41B70FA2EC2AC8D005A4958 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
