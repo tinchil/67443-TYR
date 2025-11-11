@@ -11,6 +11,9 @@ struct CapsuleDetailView: View {
     @ObservedObject var viewModel: CapsuleViewModel
     let groupId: UUID
     @State private var showEditCapsule = false
+    @State private var videoURL: URL?
+    @State private var showVideoPlayer = false
+
 
     var group: Group? {
         viewModel.getGroup(by: groupId)
@@ -87,6 +90,54 @@ struct CapsuleDetailView: View {
                         DetailRow(label: "Contribution Requirement", value: capsule.contributionRequirement.rawValue)
                     }
                     .padding()
+                    
+                    // MARK: - Unlock / Video Section
+                    let isLocked = viewModel.isCapsuleLocked(groupId: groupId)
+
+                    if isLocked {
+                        VStack(spacing: 12) {
+                            Image(systemName: "hourglass")
+                                .font(.system(size: 50))
+                                .foregroundColor(.gray)
+                            Text("Your capsule will unlock soon!")
+                                .font(.headline)
+                            Text("Unlocks on \(capsule.revealDate.formatted(date: .abbreviated, time: .omitted))")
+                                .font(.subheadline)
+                                .foregroundColor(.secondary)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 30)
+                    } else {
+                        Button(action: {
+                            viewModel.generateVideoIfUnlocked(for: groupId) { url in
+                                if let url = url {
+                                    videoURL = url
+                                    showVideoPlayer = true
+                                }
+                            }
+                        }) {
+                            Text("View Capsule Video")
+                                .font(.headline)
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding()
+                                .background(Color.blue)
+                                .cornerRadius(12)
+                        }
+                        .padding(.horizontal)
+                        .padding(.bottom, 20)
+                        .sheet(isPresented: $showVideoPlayer) {
+                            if let url = videoURL,
+                               let capsule = group.capsule {
+                                VideoPlayerView(
+                                    url: url,
+                                    capsuleTitle: capsule.name,
+                                    capsuleDescription: capsule.description,
+                                    revealDate: capsule.revealDate
+                                )
+                            }
+                        }
+                    }
                 }
             }
         }

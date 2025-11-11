@@ -1,10 +1,3 @@
-//
-//  PhotoConfirmationView.swift
-//  Saturdays
-//
-//  Created by Claude Code
-//
-
 import SwiftUI
 
 struct PhotoConfirmationView: View {
@@ -41,7 +34,7 @@ struct PhotoConfirmationView: View {
                     GridItem(.flexible()),
                     GridItem(.flexible())
                 ], spacing: 10) {
-                    ForEach(Array(viewModel.selectedPhotos.enumerated()), id: \.offset) { index, photo in
+                    ForEach(Array(viewModel.selectedPhotos.enumerated()), id: \.offset) { _, photo in
                         Image(uiImage: photo)
                             .resizable()
                             .scaledToFill()
@@ -90,8 +83,24 @@ struct PhotoConfirmationView: View {
         .navigationTitle("Confirm Photos")
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $navigateToSuccess) {
-            SuccessView()
+            SuccessDestinationView(viewModel: viewModel)
         }
+    }
+}
+
+/// Extracted helper View to fix buildExpression issue
+private struct SuccessDestinationView: View {
+    @ObservedObject var viewModel: GroupCreationViewModel
+
+    var body: some View {
+        let newGroup = viewModel.createGroup()
+        let capsuleViewModel = CapsuleViewModel()
+        capsuleViewModel.addGroup(newGroup)
+
+        return SuccessView(
+            capsuleViewModel: capsuleViewModel,
+            newGroupId: newGroup.id
+        )
     }
 }
 

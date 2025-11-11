@@ -48,17 +48,52 @@ class CapsuleViewModel: ObservableObject {
         groups.removeAll(where: { $0.id == groupId })
     }
 
-    /// Checks if a capsule is locked
+    /// Checks if a capsule is locked based on its reveal date
     func isCapsuleLocked(groupId: UUID) -> Bool {
         guard let group = getGroup(by: groupId),
               let capsule = group.capsule else { return true }
-        return capsule.lockPeriod > Date()
+
+        // Treat revealDate as the actual unlock date
+        let endOfDay = Calendar.current.date(bySettingHour: 23, minute: 59, second: 59, of: capsule.revealDate) ?? capsule.revealDate
+        return endOfDay > Date()   // true = locked, false = unlocked
     }
+
 
     /// Gets the count of photos in a capsule
     func photoCount(for groupId: UUID) -> Int {
         guard let group = getGroup(by: groupId),
               let capsule = group.capsule else { return 0 }
         return capsule.photos.count
+    }
+}
+
+// MARK: - Video Generation
+extension CapsuleViewModel {
+    func generateVideoIfUnlocked(for groupId: UUID, completion: @escaping (URL?) -> Void) {
+        guard let index = groups.firstIndex(where: { $0.id == groupId }),
+              let capsule = groups[index].capsule else {
+            completion(nil)
+            return
+        }
+
+        // Only generate if unlocked and not already created
+        guard capsule.lockPeriod <= Date(), capsule.videoURL == nil else {
+            completion(capsule.videoURL)
+            return
+        }
+
+        VideoCreator.createVideo(from: capsule.photos) { url in
+            if let url = url {
+                var updatedCapsule = capsule
+                updatedCapsule.videoURL = url
+                self.groups[index].capsule = updatedCapsule
+                DispatchQueue.main.async {
+                    self.objectWillChange.send()
+                    completion(url)
+                }
+            } else {
+                completion(nil)
+            }
+        }
     }
 }
