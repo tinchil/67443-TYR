@@ -7,22 +7,21 @@
 
 import Foundation
 
-struct Friend: Identifiable, Hashable {
-    let id = UUID()
-    let name: String
-    let username: String
-    let avatarImage: String? = nil // For future implementation
 
-    // Sample data for testing
-    static let sampleFriends: [Friend] = [
-        Friend(name: "Jenny Kim", username: "@jennykim"),
-        Friend(name: "Alex Chen", username: "@alexchen"),
-        Friend(name: "Maria Garcia", username: "@mariagarcia"),
-        Friend(name: "Sofia Martinez", username: "@sofiamartinez"),
-        Friend(name: "Taylor Swift", username: "@taylorswift"),
-        Friend(name: "Jordan Lee", username: "@jordanlee"),
-        Friend(name: "Sam Wilson", username: "@samwilson"),
-        Friend(name: "Chris Evans", username: "@chrisevans"),
-        Friend(name: "Morgan Freeman", username: "@morganfreeman")
-    ]
+struct Friend: Identifiable, Codable, Sendable {
+    var id: String              // Unique friend doc id = friend.userID
+    var userID: String          // UID of the friend
+    var username: String
+    var displayName: String
+    var createdAt: Date
+}
+
+
+struct FriendRequest: Identifiable, Codable, Sendable {
+    var id: String                  // "{fromID}_to_{toID}"
+    var fromUserID: String
+    var fromUsername: String
+    var fromDisplayName: String
+    var toUserID: String
+    var createdAt: Date
 }

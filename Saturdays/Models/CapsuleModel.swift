@@ -14,3 +14,5 @@ struct CapsuleModel: Identifiable {
     var groupID: String? = nil
     var coverPhoto: UIImage? = nil
 }
+
+

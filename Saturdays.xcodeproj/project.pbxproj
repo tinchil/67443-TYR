@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		F46492D02EE020B800DEBA43 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = F46492CF2EE020B800DEBA43 /* FirebaseAnalytics */; };
+		F46492D22EE020B800DEBA43 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F46492D12EE020B800DEBA43 /* FirebaseAuth */; };
 		F54918092EAEE3640063DD60 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = F54918082EAEE3640063DD60 /* FirebaseCore */; };
 		F549180B2EAEE3640063DD60 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = F549180A2EAEE3640063DD60 /* FirebaseFirestore */; };
 		F549180D2EAEE3640063DD60 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = F549180C2EAEE3640063DD60 /* FirebaseStorage */; };
@@ -59,7 +61,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				F54918092EAEE3640063DD60 /* FirebaseCore in Frameworks */,
+				F46492D22EE020B800DEBA43 /* FirebaseAuth in Frameworks */,
 				F549180B2EAEE3640063DD60 /* FirebaseFirestore in Frameworks */,
+				F46492D02EE020B800DEBA43 /* FirebaseAnalytics in Frameworks */,
 				F549180D2EAEE3640063DD60 /* FirebaseStorage in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -146,6 +150,8 @@
 				F54918082EAEE3640063DD60 /* FirebaseCore */,
 				F549180A2EAEE3640063DD60 /* FirebaseFirestore */,
 				F549180C2EAEE3640063DD60 /* FirebaseStorage */,
+				F46492CF2EE020B800DEBA43 /* FirebaseAnalytics */,
+				F46492D12EE020B800DEBA43 /* FirebaseAuth */,
 			);
 			productName = Saturdays;
 			productReference = A3A09B5B2E8B304200E822FE /* Saturdays.app */;
@@ -471,7 +477,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5QXF6Z2NB3;
+				DEVELOPMENT_TEAM = 97R5R6FY26;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -485,7 +491,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.rosemaryyang.Saturdays;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yininghe.Saturdays;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -508,7 +514,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 5QXF6Z2NB3;
+				DEVELOPMENT_TEAM = 97R5R6FY26;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -522,7 +528,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.rosemaryyang.Saturdays;
+				PRODUCT_BUNDLE_IDENTIFIER = com.yininghe.Saturdays;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -778,6 +784,16 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		F46492CF2EE020B800DEBA43 /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F54918072EAEE3640063DD60 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		F46492D12EE020B800DEBA43 /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F54918072EAEE3640063DD60 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
 		F54918082EAEE3640063DD60 /* FirebaseCore */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F54918072EAEE3640063DD60 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;

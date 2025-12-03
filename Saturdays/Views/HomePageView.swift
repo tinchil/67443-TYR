@@ -11,6 +11,7 @@ struct HomePageView: View {
 
     // ViewModels
     @StateObject private var homeVM = HomeViewModel()
+    @EnvironmentObject var auth: AuthViewModel     // ⬅ ADD THIS
     @State private var showCreateCapsule = false
     
     var body: some View {
@@ -38,8 +39,12 @@ struct HomePageView: View {
                             
                             Spacer()
                             
-                            Image(systemName: "person.3.fill")
-                                .font(.title2)
+                            NavigationLink {
+                                FriendsView()
+                            } label: {
+                                Image(systemName: "person.3.fill")
+                                    .font(.title2)
+                            }
                         }
                         .padding(.horizontal)
                         .padding(.top, 15)
@@ -98,11 +103,27 @@ struct HomePageView: View {
             .navigationDestination(isPresented: $showCreateCapsule) {
                 CapsuleDetailsView(viewModel: homeVM.currentCapsuleVM)
             }
+
+            // ⭐ NEW — logout toolbar button (top-right)
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Menu {
+                        Button("Log Out", role: .destructive) {
+                            auth.logout()
+                        }
+                    } label: {
+                        Image(systemName: "rectangle.portrait.and.arrow.right")
+                            .font(.title2)
+                            .foregroundColor(.black)
+                    }
+                }
+            }
         }
     }
 }
 
-#Preview {
-    HomePageView()
-}
 
+//#Preview {
+//    HomePageView()
+//}
+//
