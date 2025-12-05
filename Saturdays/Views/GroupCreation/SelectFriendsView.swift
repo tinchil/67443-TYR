@@ -108,9 +108,13 @@ struct SelectFriendsView: View {
                         .background(Color(red: 0/255, green: 0/255, blue: 142/255))
                         .cornerRadius(12)
                 }
-                .padding()
+                .padding(.horizontal)
+                .padding(.top, 10)
             }
+
+            Spacer()
         }
+        .padding(.bottom, 160)   // ⭐ FIX: moves entire view above tab bar
         .background(Color.white)
         .navigationTitle("Select Friends")
         .navigationBarTitleDisplayMode(.inline)
