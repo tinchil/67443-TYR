@@ -71,21 +71,61 @@ class FriendsViewModel: ObservableObject {
 
     // MARK: - SEND REQUEST
     func sendRequest(to user: UserModel) {
-        guard let authUser = Auth.auth().currentUser else { return }
+        guard let authUID = Auth.auth().currentUser?.uid else {
+            print("❌ No authenticated user")
+            return
+        }
 
-        // Load logged-in user from Firestore
-        service.searchUser(username: authUser.uid) { _ in }
+        // Fetch current user data from Firestore
+        Firestore.firestore().collection("users").document(authUID).getDocument { snapshot, error in
+            if let error = error {
+                print("❌ Error fetching current user: \(error.localizedDescription)")
+                return
+            }
 
-        // Instead get from AuthViewModel singleton (your actual logged in UserModel)
-        guard let myUser = AuthViewModel().loggedInUser else { return }
+            guard let myUser = try? snapshot?.data(as: UserModel.self) else {
+                print("❌ Could not decode current user data")
+                return
+            }
 
-        service.sendFriendRequest(to: user, from: myUser) { _ in }
+            print("📤 Sending friend request from \(myUser.username) to \(user.username)")
+            self.service.sendFriendRequest(to: user, from: myUser) { success in
+                if success {
+                    print("✅ Friend request successful")
+                } else {
+                    print("❌ Friend request failed")
+                }
+            }
+        }
     }
 
     // MARK: - REQUEST HANDLING
     func accept(request: FriendRequest) {
-        guard let myUser = AuthViewModel().loggedInUser else { return }
-        service.acceptRequest(request, currentUser: myUser) { _ in }
+        guard let authUID = Auth.auth().currentUser?.uid else {
+            print("❌ No authenticated user")
+            return
+        }
+
+        // Fetch current user data from Firestore
+        Firestore.firestore().collection("users").document(authUID).getDocument { snapshot, error in
+            if let error = error {
+                print("❌ Error fetching current user: \(error.localizedDescription)")
+                return
+            }
+
+            guard let myUser = try? snapshot?.data(as: UserModel.self) else {
+                print("❌ Could not decode current user data")
+                return
+            }
+
+            self.service.acceptRequest(request, currentUser: myUser) { success in
+                if success {
+                    print("✅ Request accepted successfully")
+                } else {
+                    print("❌ Failed to accept request")
+                }
+            }
+        }
     }
 
     func delete(request: FriendRequest) {

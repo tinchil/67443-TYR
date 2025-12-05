@@ -32,28 +32,59 @@ class FriendsService {
             }
     }
 
-    // MARK: - SEND REQUEST
+    // MARK: - SEND REQUEST (OLD - WITH APPROVAL)
+    // func sendFriendRequest(
+    //     to user: UserModel,
+    //     from: UserModel,
+    //     completion: @escaping (Bool) -> Void
+    // ) {
+    //     let requestID = "\(currentUserID)_to_\(user.id)"
+    //
+    //     let ref = db.collection("users")
+    //         .document(user.id)
+    //         .collection("friendRequests")
+    //         .document(requestID)
+    //
+    //     ref.setData([
+    //         "id": requestID,
+    //         "fromUserID": currentUserID,
+    //         "fromUsername": from.username,
+    //         "fromDisplayName": from.displayName,
+    //         "toUserID": user.id,
+    //         "createdAt": Date()
+    //     ]) { error in
+    //         completion(error == nil)
+    //     }
+    // }
+
+    // MARK: - ADD FRIEND (NEW - INSTANT)
     func sendFriendRequest(
         to user: UserModel,
         from: UserModel,
         completion: @escaping (Bool) -> Void
     ) {
-        let requestID = "\(currentUserID)_to_\(user.id)"
+        let batch = db.batch()
 
-        let ref = db.collection("users")
-            .document(user.id)
-            .collection("friendRequests")
-            .document(requestID)
+        // Add their UID to MY friendIDs array
+        let myRef = db.collection("users").document(currentUserID)
+        batch.setData([
+            "friendIDs": FieldValue.arrayUnion([user.id])
+        ], forDocument: myRef, merge: true)
 
-        ref.setData([
-            "id": requestID,
-            "fromUserID": currentUserID,
-            "fromUsername": from.username,
-            "fromDisplayName": from.displayName,
-            "toUserID": user.id,
-            "createdAt": Date()
-        ]) { error in
-            completion(error == nil)
+        // Add MY UID to their friendIDs array
+        let theirRef = db.collection("users").document(user.id)
+        batch.setData([
+            "friendIDs": FieldValue.arrayUnion([currentUserID])
+        ], forDocument: theirRef, merge: true)
+
+        batch.commit { error in
+            if let error = error {
+                print("❌ Error adding friend: \(error.localizedDescription)")
+                completion(false)
+            } else {
+                print("✅ Friend added successfully")
+                completion(true)
+            }
         }
     }
 
@@ -66,33 +97,17 @@ class FriendsService {
 
         let batch = db.batch()
 
-        // Add friend to ME
-        let myRef = db.collection("users")
-            .document(currentUserID)
-            .collection("friends")
-            .document(request.fromUserID)
-
+        // Add their UID to MY friendIDs array
+        let myRef = db.collection("users").document(currentUserID)
         batch.setData([
-            "id": request.fromUserID,
-            "userID": request.fromUserID,
-            "username": request.fromUsername,
-            "displayName": request.fromDisplayName,
-            "createdAt": Date()
-        ], forDocument: myRef)
+            "friendIDs": FieldValue.arrayUnion([request.fromUserID])
+        ], forDocument: myRef, merge: true)
 
-        // Add ME to their list
-        let theirRef = db.collection("users")
-            .document(request.fromUserID)
-            .collection("friends")
-            .document(currentUser.id)
-
+        // Add MY UID to their friendIDs array
+        let theirRef = db.collection("users").document(request.fromUserID)
         batch.setData([
-            "id": currentUser.id,
-            "userID": currentUser.id,
-            "username": currentUser.username,
-            "displayName": currentUser.displayName,
-            "createdAt": Date()
-        ], forDocument: theirRef)
+            "friendIDs": FieldValue.arrayUnion([currentUser.id])
+        ], forDocument: theirRef, merge: true)
 
         // Delete request
         let reqRef = db.collection("users")
@@ -103,6 +118,9 @@ class FriendsService {
         batch.deleteDocument(reqRef)
 
         batch.commit { error in
+            if let error = error {
+                print("❌ Error accepting request: \(error.localizedDescription)")
+            }
             completion(error == nil)
         }
     }
@@ -123,20 +141,22 @@ class FriendsService {
 
         let batch = db.batch()
 
-        let myRef = db.collection("users")
-            .document(currentUserID)
-            .collection("friends")
-            .document(friend.userID)
+        // Remove their UID from MY friendIDs array
+        let myRef = db.collection("users").document(currentUserID)
+        batch.setData([
+            "friendIDs": FieldValue.arrayRemove([friend.userID])
+        ], forDocument: myRef, merge: true)
 
-        let theirRef = db.collection("users")
-            .document(friend.userID)
-            .collection("friends")
-            .document(currentUserID)
-
-        batch.deleteDocument(myRef)
-        batch.deleteDocument(theirRef)
+        // Remove MY UID from their friendIDs array
+        let theirRef = db.collection("users").document(friend.userID)
+        batch.setData([
+            "friendIDs": FieldValue.arrayRemove([currentUserID])
+        ], forDocument: theirRef, merge: true)
 
         batch.commit { error in
+            if let error = error {
+                print("❌ Error removing friend: \(error.localizedDescription)")
+            }
             completion(error == nil)
         }
     }
@@ -164,15 +184,59 @@ class FriendsService {
 
         return db.collection("users")
             .document(currentUserID)
-            .collection("friends")
-            .order(by: "createdAt", descending: true)
-            .addSnapshotListener { snapshot, _ in
+            .addSnapshotListener { [weak self] snapshot, error in
 
-                let friends = snapshot?.documents.compactMap {
-                    try? $0.data(as: Friend.self)
-                } ?? []
+                if let error = error {
+                    print("❌ Error listening for friends: \(error.localizedDescription)")
+                    completion([])
+                    return
+                }
 
-                completion(friends)
+                guard let self = self,
+                      let data = snapshot?.data(),
+                      let friendIDs = data["friendIDs"] as? [String] else {
+                    print("ℹ️ No friendIDs found or empty")
+                    completion([])
+                    return
+                }
+
+                print("📋 Found \(friendIDs.count) friend IDs: \(friendIDs)")
+
+                // If no friends, return empty array
+                if friendIDs.isEmpty {
+                    completion([])
+                    return
+                }
+
+                // Fetch details for each friend UID
+                let group = DispatchGroup()
+                var fetchedFriends: [Friend] = []
+
+                for friendID in friendIDs {
+                    group.enter()
+                    self.db.collection("users").document(friendID).getDocument { doc, _ in
+                        defer { group.leave() }
+
+                        if let doc = doc,
+                           let userData = try? doc.data(as: UserModel.self) {
+                            let friend = Friend(
+                                id: userData.id,
+                                userID: userData.id,
+                                username: userData.username,
+                                displayName: userData.displayName,
+                                createdAt: userData.createdAt
+                            )
+                            fetchedFriends.append(friend)
+                            print("✅ Fetched friend: \(userData.username)")
+                        }
+                    }
+                }
+
+                group.notify(queue: .main) {
+                    // Sort by username for consistent ordering
+                    print("📤 Returning \(fetchedFriends.count) friends to UI")
+                    completion(fetchedFriends.sorted { $0.username < $1.username })
+                }
             }
     }
 }

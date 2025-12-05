@@ -98,7 +98,7 @@ struct AddFriendView: View {
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
             isSending = false
-            feedbackMessage = "Request sent!"
+            feedbackMessage = "Friend added!"
         }
     }
 }
@@ -131,12 +131,12 @@ struct SearchResultCell: View {
             Spacer()
             
             if isRequestSent {
-                Text("Requested")
+                Text("Friends")
                     .font(.subheadline)
-                    .foregroundColor(.gray)
+                    .foregroundColor(.green)
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(Color.gray.opacity(0.15))
+                    .background(Color.green.opacity(0.15))
                     .cornerRadius(10)
                 
             } else {
