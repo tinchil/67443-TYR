@@ -2,131 +2,219 @@
 //  SelectFriendsView.swift
 //  Saturdays
 //
-//  Created by Claude Code
+//  Created by Tin on 12/5/25.
 //
 
-//import SwiftUI
-//
-//struct SelectFriendsView: View {
-//    @ObservedObject var viewModel: GroupCreationViewModel
-//    @State private var navigateToGroupDetails = false
-//    let friends = Friend.sampleFriends
-//
-//    var body: some View {
-//        VStack(spacing: 0) {
-//            // Header
-//            VStack(alignment: .leading, spacing: 3) {
-//                Text("Select friends to create")
-//                    .font(.title2)
-//                    .fontWeight(.bold)
-//                Text("new capsule group")
-//                    .font(.title2)
-//                    .fontWeight(.bold)
-//            }
-//            .frame(maxWidth: .infinity, alignment: .leading)
-//            .padding(.horizontal)
-//            .padding(.top, 20)
-//
-//            // Friend List
-//            ScrollView {
-//                VStack(spacing: 0) {
-//                    ForEach(friends) { friend in
-//                        FriendRow(
-//                            friend: friend,
-//                            isSelected: viewModel.selectedFriends.contains(friend)
-//                        ) {
-//                            toggleSelection(friend)
-//                        }
-//                        Divider()
-//                            .padding(.leading, 60)
-//                    }
-//                }
-//                .padding(.top, 20)
-//            }
-//
-//            // Create Group Button
-//            Button(action: {
-//                navigateToGroupDetails = true
-//            }) {
-//                Text("Create Group")
-//                    .font(.headline)
-//                    .foregroundColor(.white)
-//                    .frame(maxWidth: .infinity)
-//                    .padding()
-//                    .background(viewModel.canProceedFromFriendSelection ? Color.blue : Color.gray)
-//                    .cornerRadius(12)
-//            }
-//            .disabled(!viewModel.canProceedFromFriendSelection)
-//            .padding()
-//        }
-//        .navigationTitle("Select Friends")
-//        .navigationBarTitleDisplayMode(.inline)
-//        .navigationDestination(isPresented: $navigateToGroupDetails) {
-//            GroupDetailsView(viewModel: viewModel)
-//        }
-//    }
-//
-//    private func toggleSelection(_ friend: Friend) {
-//        if let index = viewModel.selectedFriends.firstIndex(of: friend) {
-//            viewModel.selectedFriends.remove(at: index)
-//        } else {
-//            viewModel.selectedFriends.append(friend)
-//        }
-//    }
-//}
-//
-//struct FriendRow: View {
-//    let friend: Friend
-//    let isSelected: Bool
-//    let action: () -> Void
-//
-//    var body: some View {
-//        Button(action: action) {
-//            HStack(spacing: 12) {
-//                // Avatar
-//                Circle()
-//                    .fill(Color.gray.opacity(0.3))
-//                    .frame(width: 44, height: 44)
-//                    .overlay(
-//                        Text(String(friend.name.prefix(1)))
-//                            .font(.headline)
-//                            .foregroundColor(.white)
-//                    )
-//
-//                // Name and Username
-//                VStack(alignment: .leading, spacing: 2) {
-//                    Text(friend.name)
-//                        .font(.body)
-//                        .fontWeight(.medium)
-//                        .foregroundColor(.primary)
-//                    Text(friend.username)
-//                        .font(.caption)
-//                        .foregroundColor(.secondary)
-//                }
-//
-//                Spacer()
-//
-//                // Checkmark
-//                if isSelected {
-//                    Image(systemName: "checkmark.circle.fill")
-//                        .foregroundColor(.blue)
-//                        .font(.title3)
-//                } else {
-//                    Circle()
-//                        .stroke(Color.gray.opacity(0.3), lineWidth: 2)
-//                        .frame(width: 24, height: 24)
-//                }
-//            }
-//            .padding(.horizontal)
-//            .padding(.vertical, 8)
-//            .contentShape(Rectangle())
-//        }
-//        .buttonStyle(PlainButtonStyle())
-//    }
-//}
-//
-//#Preview {
-//    NavigationStack {
-//        SelectFriendsView(viewModel: GroupCreationViewModel())
-//    }
-//}
+
+import SwiftUI
+import FirebaseAuth
+
+struct SelectFriendsView: View {
+    @ObservedObject var capsuleVM: CapsuleDetailsViewModel
+    @ObservedObject var groupsVM: GroupsViewModel
+    @StateObject private var friendsVM = FriendsViewModel()
+
+    @State private var selectedFriendIDs: Set<String> = []
+    @State private var searchText: String = ""
+    @State private var groupName: String = ""
+    @State private var showGroupNameAlert = false
+    @State private var showSuccessView = false
+    @Environment(\.dismiss) var dismiss
+
+    var filteredFriends: [Friend] {
+        if searchText.isEmpty {
+            return friendsVM.friends
+        } else {
+            return friendsVM.friends.filter { friend in
+                friend.username.lowercased().contains(searchText.lowercased()) ||
+                friend.displayName.lowercased().contains(searchText.lowercased())
+            }
+        }
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+
+            // MARK: - HEADER
+            Text("SELECT FRIENDS TO CREATE\nNEW CAPSULE GROUP")
+                .font(.system(size: 20, weight: .bold))
+                .foregroundColor(Color(red: 0/255, green: 0/255, blue: 142/255))
+                .multilineTextAlignment(.center)
+                .padding(.top, 20)
+                .padding(.horizontal)
+
+            // MARK: - SEARCH BAR
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+
+                TextField("Search Friend...", text: $searchText)
+                    .textFieldStyle(PlainTextFieldStyle())
+            }
+            .padding()
+            .background(Color(UIColor.systemGray6))
+            .cornerRadius(10)
+            .padding(.horizontal)
+            .padding(.top, 20)
+
+            // MARK: - FRIENDS LIST
+            if friendsVM.friends.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "person.2.slash")
+                        .font(.system(size: 50))
+                        .foregroundColor(.gray)
+                        .padding(.top, 60)
+
+                    Text("No friends yet")
+                        .font(.headline)
+                        .foregroundColor(.gray)
+
+                    Text("Add friends first to create a group")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+                }
+                Spacer()
+            } else {
+                ScrollView(showsIndicators: false) {
+                    VStack(spacing: 0) {
+                        ForEach(filteredFriends) { friend in
+                            FriendSelectionRow(
+                                friend: friend,
+                                isSelected: selectedFriendIDs.contains(friend.userID)
+                            ) {
+                                toggleSelection(friend.userID)
+                            }
+
+                            if friend.id != filteredFriends.last?.id {
+                                Divider()
+                                    .padding(.leading, 80)
+                            }
+                        }
+                    }
+                }
+                .padding(.top, 10)
+            }
+
+            // MARK: - CREATE GROUP BUTTON
+            if !selectedFriendIDs.isEmpty {
+                Button {
+                    showGroupNameAlert = true
+                } label: {
+                    Text("Create Group with \(selectedFriendIDs.count) friend(s)")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(Color(red: 0/255, green: 0/255, blue: 142/255))
+                        .cornerRadius(12)
+                }
+                .padding()
+            }
+        }
+        .background(Color.white)
+        .navigationTitle("Select Friends")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                NavigationLink {
+                    AddFriendView(vm: friendsVM)
+                } label: {
+                    Image(systemName: "person.badge.plus")
+                        .font(.title2)
+                        .foregroundColor(Color(red: 0/255, green: 0/255, blue: 142/255))
+                }
+            }
+        }
+        .navigationDestination(isPresented: $showSuccessView) {
+            GroupCreatedSuccessView(capsuleVM: capsuleVM)
+        }
+        .alert("Name Your Group", isPresented: $showGroupNameAlert) {
+            TextField("Group Name", text: $groupName)
+            Button("Cancel", role: .cancel) { }
+            Button("Create") {
+                createGroup()
+            }
+        } message: {
+            Text("Give your new group a name")
+        }
+    }
+
+    // MARK: - HELPERS
+    func toggleSelection(_ friendID: String) {
+        if selectedFriendIDs.contains(friendID) {
+            selectedFriendIDs.remove(friendID)
+        } else {
+            selectedFriendIDs.insert(friendID)
+        }
+    }
+
+    func createGroup() {
+        guard !groupName.isEmpty else { return }
+        guard let currentUserID = Auth.auth().currentUser?.uid else { return }
+
+        var memberIDs = Array(selectedFriendIDs)
+        memberIDs.append(currentUserID)  // Add yourself to the group
+
+        // Create group in GroupsService
+        groupsVM.createGroup(name: groupName, memberIDs: memberIDs) { groupID in
+            if let groupID = groupID {
+                // Set the group in capsule
+                capsuleVM.setGroup(groupID: groupID, memberIDs: memberIDs)
+                // Show success view (will auto-navigate after 2 seconds)
+                showSuccessView = true
+            }
+        }
+    }
+}
+
+// MARK: - Friend Selection Row Component
+struct FriendSelectionRow: View {
+    let friend: Friend
+    let isSelected: Bool
+    let onTap: () -> Void
+
+    var body: some View {
+        Button(action: onTap) {
+            HStack(spacing: 16) {
+                // Profile Icon
+                ZStack {
+                    Circle()
+                        .fill(Color(UIColor.systemGray4))
+                        .frame(width: 50, height: 50)
+
+                    Image(systemName: "person.fill")
+                        .foregroundColor(Color(UIColor.systemGray2))
+                        .font(.system(size: 24))
+                }
+
+                // Names
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(friend.username)
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundColor(.black)
+
+                    Text(friend.displayName)
+                        .font(.system(size: 14))
+                        .foregroundColor(.gray)
+                }
+
+                Spacer()
+
+                // Checkbox
+                if isSelected {
+                    Image(systemName: "checkmark.circle.fill")
+                        .foregroundColor(.blue)
+                        .font(.title2)
+                } else {
+                    Circle()
+                        .strokeBorder(Color.gray.opacity(0.3), lineWidth: 2)
+                        .frame(width: 24, height: 24)
+                }
+            }
+            .padding(.horizontal)
+            .padding(.vertical, 12)
+            .background(isSelected ? Color.blue.opacity(0.05) : Color.white)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}

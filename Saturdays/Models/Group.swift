@@ -2,14 +2,16 @@
 //  Group.swift
 //  Saturdays
 //
-//  Created by Claude Code
+//  Created by Tin 12/2/2025
 //
 
-//struct Group: Identifiable, Codable {
-//    let id: String
-//    let name: String
-//    let members: [String]
-//    let coverPhotoURL: String
-//    let createdBy: String
-//    let createdAt: Date
-//}
+import Foundation
+
+struct GroupModel: Identifiable, Codable {
+    var id: String
+    var name: String
+    var memberIDs: [String]
+    var createdBy: String
+    var createdAt: Date
+    var coverPhotoURL: String?
+}

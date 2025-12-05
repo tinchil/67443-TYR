@@ -103,6 +103,9 @@ struct HomePageView: View {
             .navigationDestination(isPresented: $showCreateCapsule) {
                 CapsuleDetailsView(viewModel: homeVM.currentCapsuleVM)
             }
+            .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("DismissCapsuleFlow"))) { _ in
+                showCreateCapsule = false
+            }
 
             // ⭐ NEW — logout toolbar button (top-right)
             .toolbar {

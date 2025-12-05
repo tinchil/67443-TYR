@@ -41,7 +41,8 @@ class AuthService {
                 createdAt: Date(),
                 friendIDs: [],
                 incomingRequests: [],
-                outgoingRequests: []
+                outgoingRequests: [],
+                groupIDs: []
             )
 
             // Save to Firestore

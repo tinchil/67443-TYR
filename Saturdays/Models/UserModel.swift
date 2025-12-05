@@ -18,4 +18,5 @@ struct UserModel: Identifiable, Codable, Sendable {
     var friendIDs: [String] = []
     var incomingRequests: [String] = []
     var outgoingRequests: [String] = []
+    var groupIDs: [String] = []
 }
