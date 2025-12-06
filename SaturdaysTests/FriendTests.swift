@@ -1,42 +1,67 @@
-//
-//  FriendTests.swift
-//  SaturdaysTests
-//
-//  Created by Yining He  on 11/10/25.
-//
-
+// FriendTests.swift
 import Testing
+import Foundation
 @testable import Saturdays
 
 struct FriendTests {
-    
-    @Test func testFriendInitialization() throws {
-        let friend = Friend(name: "Ria He", username: "@riahe")
-        
-        #expect(friend.name == "Ria He")
+
+    @Test
+    func testFriendInitializationStoresAllFields() {
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+
+        let friend = Friend(
+            id: "friend-123",
+            userID: "user-123",
+            username: "@riahe",
+            displayName: "Ria He",
+            createdAt: now
+        )
+
+        #expect(friend.id == "friend-123")
+        #expect(friend.userID == "user-123")
         #expect(friend.username == "@riahe")
-        #expect(friend.avatarImage == nil)
+        #expect(friend.displayName == "Ria He")
+        #expect(friend.createdAt == now)
     }
-    
-    @Test func testUniqueIDs() throws {
-        let friend1 = Friend(name: "Alex", username: "@alex")
-        let friend2 = Friend(name: "Maria", username: "@maria")
-        
-        #expect(friend1.id != friend2.id)
+
+    @Test
+    func testFriendIdentifiableUsesID() {
+        let friend = Friend(
+            id: "abc",
+            userID: "abc",
+            username: "@abc",
+            displayName: "ABC",
+            createdAt: Date(timeIntervalSince1970: 1_700_000_100)
+        )
+
+        #expect(friend.id == "abc")
     }
-    
-    @Test func testSampleFriendsCount() throws {
-        #expect(Friend.sampleFriends.count == 9)
-    }
-    
-    @Test func testSampleIncludesTaylor() throws {
-        let names = Friend.sampleFriends.map { $0.name }
-        #expect(names.contains("Taylor Swift"))
-    }
-    
-    @Test func testHashableConformance() throws {
-        let friend = Friend(name: "Jordan Lee", username: "@jordanlee")
-        let set: Set<Friend> = [friend]
-        #expect(set.contains(friend))
+
+    @Test
+    func testFriendCodableRoundTrip() throws {
+        // Use a fixed timestamp without fractional seconds
+        let now = Date(timeIntervalSince1970: 1_700_000_000)
+
+        let friend = Friend(
+            id: "friend-999",
+            userID: "user-999",
+            username: "@testuser",
+            displayName: "Test User",
+            createdAt: now
+        )
+
+        let encoder = JSONEncoder()
+        encoder.dateEncodingStrategy = .iso8601
+        let data = try encoder.encode(friend)
+
+        let decoder = JSONDecoder()
+        decoder.dateDecodingStrategy = .iso8601
+        let decoded = try decoder.decode(Friend.self, from: data)
+
+        #expect(decoded.id == friend.id)
+        #expect(decoded.userID == friend.userID)
+        #expect(decoded.username == friend.username)
+        #expect(decoded.displayName == friend.displayName)
+        #expect(decoded.createdAt == friend.createdAt)
     }
 }
