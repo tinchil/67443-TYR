@@ -11,8 +11,6 @@ import SwiftUI
 import ViewInspector
 @testable import Saturdays
 
-extension CreateAccountView: Inspectable {}
-
 @MainActor
 struct CreateAccountViewTests {
     

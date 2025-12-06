@@ -8,8 +8,6 @@ import SwiftUI
 import ViewInspector
 @testable import Saturdays
 
-extension CapsuleCardView: Inspectable {}
-
 @MainActor
 struct CapsuleCardViewTests {
 

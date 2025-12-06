@@ -8,9 +8,6 @@ import SwiftUI
 import ViewInspector
 @testable import Saturdays
 
-// Make BottomNavBar inspectable
-extension BottomNavBar: Inspectable {}
-
 @MainActor
 struct BottomNavBarTests {
 

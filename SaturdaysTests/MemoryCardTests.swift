@@ -8,8 +8,6 @@ import SwiftUI
 import ViewInspector
 @testable import Saturdays
 
-extension MemoryCard: Inspectable {}
-
 @MainActor
 struct MemoryCardTests {
 

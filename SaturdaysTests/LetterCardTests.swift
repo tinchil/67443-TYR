@@ -8,8 +8,6 @@ import SwiftUI
 import ViewInspector
 @testable import Saturdays
 
-extension LetterCard: Inspectable {}
-
 @MainActor
 struct LetterCardTests {
 

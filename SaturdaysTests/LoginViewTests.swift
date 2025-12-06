@@ -8,8 +8,6 @@ import SwiftUI
 import ViewInspector
 @testable import Saturdays
 
-extension LoginView: Inspectable {}
-
 @MainActor
 struct LoginViewTests {
 
