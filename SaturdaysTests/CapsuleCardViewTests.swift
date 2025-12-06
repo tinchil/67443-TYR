@@ -1,3 +1,8 @@
+//
+//  CapsuleCardViewTests.swift
+//  Saturdays
+//
+
 import Testing
 import SwiftUI
 import ViewInspector
@@ -5,6 +10,7 @@ import ViewInspector
 
 extension CapsuleCardView: Inspectable {}
 
+@MainActor
 struct CapsuleCardViewTests {
 
     @Test
@@ -13,8 +19,12 @@ struct CapsuleCardViewTests {
         model.name = ""
 
         let view = CapsuleCardView(capsule: model)
-        let text = try view.inspect().find(text: "Untitled Capsule")
-        #expect(text != nil)
+
+        try await ViewHosting.host(view) { hosted in
+            let inspected = try hosted.inspect()
+            let text = try inspected.find(text: "Untitled Capsule")
+            #expect(text != nil)
+        }
     }
 
     @Test
@@ -23,7 +33,11 @@ struct CapsuleCardViewTests {
         model.name = "Trip"
 
         let view = CapsuleCardView(capsule: model)
-        let text = try view.inspect().find(text: "Trip")
-        #expect(text != nil)
+
+        try await ViewHosting.host(view) { hosted in
+            let inspected = try hosted.inspect()
+            let text = try inspected.find(text: "Trip")
+            #expect(text != nil)
+        }
     }
 }
