@@ -9,9 +9,9 @@ struct HomeViewModelTests {
 
         let oldVM = vm.currentCapsuleVM
 
-        vm.startCapsule(type: .video)
+        vm.startCapsule(type: .letter)
 
-        #expect(vm.currentCapsuleVM.capsule.type == .video)
+        #expect(vm.currentCapsuleVM.capsule.type == .letter)
         #expect(vm.currentCapsuleVM !== oldVM)
     }
 
