@@ -12,30 +12,33 @@ import ViewInspector
 struct CapsuleCardViewTests {
 
     @Test
-    func testShowsUntitledWhenEmpty() async throws {
+    func testShowsUntitledWhenEmpty() throws {
         var model = CapsuleModel(type: .memory)
         model.name = ""
 
         let view = CapsuleCardView(capsule: model)
 
-        try await ViewHosting.host(view) { hosted in
-            let inspected = try hosted.inspect()
-            let text = try inspected.find(text: "Untitled Capsule")
-            #expect(text != nil)
-        }
+        // host is NOT async and does NOT throw
+        ViewHosting.host(view: view)
+
+        // inspect DOES throw
+        let inspected = try view.inspect()
+
+        let text = try inspected.find(text: "Untitled Capsule")
+        #expect(try text.string() == "Untitled Capsule")
     }
 
     @Test
-    func testShowsNameWhenProvided() async throws {
+   func testShowsNameWhenProvided() throws {
         var model = CapsuleModel(type: .memory)
         model.name = "Trip"
 
         let view = CapsuleCardView(capsule: model)
 
-        try await ViewHosting.host(view) { hosted in
-            let inspected = try hosted.inspect()
-            let text = try inspected.find(text: "Trip")
-            #expect(text != nil)
-        }
+        ViewHosting.host(view: view)
+
+        let inspected = try view.inspect()
+        let text = try inspected.find(text: "Trip")
+        #expect(try text.string() == "Trip")
     }
 }

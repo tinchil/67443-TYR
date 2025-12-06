@@ -12,25 +12,28 @@ import ViewInspector
 struct PromptCardTests {
 
     @Test
-    func testDisplaysPrompt() async throws {
+    func testDisplaysPrompt() throws {
         let view = PromptCard(prompt: "Hello world")
 
-        try await ViewHosting.host(view) { hosted in
-            let inspected = try hosted.inspect()
-            let text = try inspected.find(text: "Hello world").string()
-            #expect(text == "Hello world")
-        }
+        ViewHosting.host(view: view)
+
+        let inspected = try view.inspect()
+        let text = try inspected.find(text: "Hello world").string()
+
+        #expect(text == "Hello world")
     }
 
     @Test
-    func testEditButtonExists() async throws {
+    func testEditButtonExists() throws {
         let view = PromptCard(prompt: "Sample")
 
-        try await ViewHosting.host(view) { hosted in
-            let inspected = try hosted.inspect()
+        ViewHosting.host(view: view)
 
-            let button = try inspected.find(ViewType.Button.self)
-            #expect(button != nil)
-        }
+        let inspected = try view.inspect()
+
+        // This succeeds if button exists; it throws if not found
+        _ = try inspected.find(ViewType.Button.self)
+
+        #expect(true)  // If we reached here, the button exists
     }
 }

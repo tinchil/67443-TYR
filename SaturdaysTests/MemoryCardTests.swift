@@ -12,19 +12,23 @@ import ViewInspector
 struct MemoryCardTests {
 
     @Test
-    func testButtonActionIsCalled() async throws {
+    func testButtonActionIsCalled() throws {
         var tapped = false
+
         let view = MemoryCard {
             tapped = true
         }
 
-        try await ViewHosting.host(view) { hosted in
-            let inspected = try hosted.inspect()
+        // Host view (sync, no throwing)
+        ViewHosting.host(view: view)
 
-            let button = try inspected.find(ViewType.Button.self)
-            try button.tap()
+        // Inspect hosted view
+        let inspected = try view.inspect()
 
-            #expect(tapped == true)
-        }
+        // Find button and tap
+        let button = try inspected.find(ViewType.Button.self)
+        try button.tap()
+
+        #expect(tapped == true)
     }
 }
