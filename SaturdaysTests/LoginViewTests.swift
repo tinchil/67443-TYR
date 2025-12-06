@@ -13,11 +13,9 @@ struct LoginViewTests {
 
     @Test
     func testLoginFlowWithViewModel() async throws {
-        // This tests the actual login logic without fighting ViewInspector
         let mockAuth = MockAuth()
         let mockDB = MockDB()
 
-        // Use the same UID that MockAuth returns
         mockDB.storedUsers["TEST_UID_1"] = UserModel(
             id: "TEST_UID_1",
             username: "rose",
@@ -34,13 +32,10 @@ struct LoginViewTests {
         AuthService.shared.database = mockDB
 
         let vm = AuthViewModel()
-        
-        // Simulate what the button does - set email/password and call login
         vm.email = "a@b.com"
         vm.password = "1234"
         vm.login()
 
-        // Wait for async operation
         try await Task.sleep(for: .milliseconds(150))
 
         #expect(mockAuth.signedInEmail == "a@b.com")
@@ -49,7 +44,6 @@ struct LoginViewTests {
         #expect(vm.loggedInUser?.username == "rose")
         #expect(vm.errorMessage.isEmpty)
     }
-
 
     @Test
     func testLoginFailureShowsError() async throws {
@@ -71,50 +65,42 @@ struct LoginViewTests {
         #expect(vm.loggedInUser == nil)
     }
 
-
     @Test
-    func testLoginButtonExists() async throws {
+    func testLoginButtonExists() throws {
         let vm = AuthViewModel()
         let sut = LoginView().environmentObject(vm)
 
-        // Verify the login button exists
-        let button = try sut.inspect().find(button: "Log In")
-        #expect(button != nil)
+        _ = try sut.inspect().find(button: "Log In")
+        #expect(true)   // If find does not throw, the button exists
     }
     
     @Test
-    func testCreateAccountButtonExists() async throws {
+    func testCreateAccountButtonExists() throws {
         let vm = AuthViewModel()
         let sut = LoginView().environmentObject(vm)
 
-        // Should find the "Create Account" button
-        let button = try sut.inspect().find(button: "Create Account")
-        #expect(button != nil)
+        _ = try sut.inspect().find(button: "Create Account")
+        #expect(true)
     }
     
     @Test
-    func testTextFieldsExist() async throws {
+    func testTextFieldsExist() throws {
         let vm = AuthViewModel()
         let sut = LoginView().environmentObject(vm)
-        
-        // Verify email field exists
-        let emailField = try sut.inspect().find(ViewType.TextField.self)
-        #expect(emailField != nil)
-        
-        // Verify password field exists
-        let passwordField = try sut.inspect().find(ViewType.SecureField.self)
-        #expect(passwordField != nil)
+
+        _ = try sut.inspect().find(ViewType.TextField.self)       // email field
+        _ = try sut.inspect().find(ViewType.SecureField.self)     // password field
+        #expect(true)
     }
     
     @Test
-    func testErrorMessageAppearsWhenSet() async throws {
+    func testErrorMessageAppearsWhenSet() throws {
         let vm = AuthViewModel()
         vm.errorMessage = "Test error"
-        
+
         let sut = LoginView().environmentObject(vm)
-        
-        // Error text should appear in the UI
+
         let errorText = try sut.inspect().find(text: "Test error")
-        #expect(errorText != nil)
+        #expect(try errorText.string() == "Test error")
     }
 }

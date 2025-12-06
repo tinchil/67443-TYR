@@ -2,9 +2,6 @@
 //  CreateAccountViewTests.swift
 //  Saturdays
 //
-//  Created by Rosemary Yang on 12/6/25.
-//
-
 
 import Testing
 import SwiftUI
@@ -34,7 +31,7 @@ struct CreateAccountViewTests {
         let button = try view.inspect().find(button: "Create Account")
         try button.tap()
         
-        // Wait for async operation
+        // async waiting
         try await Task.sleep(for: .milliseconds(100))
         
         #expect(mockAuth.createdEmail == "a@b.com")
@@ -49,22 +46,23 @@ struct CreateAccountViewTests {
         let view = CreateAccountView()
             .environmentObject(vm)
         
-        // Find and verify text fields exist
-        let usernameField = try view.inspect().find(ViewType.TextField.self, where: { field in
+        let usernameField = try view.inspect().find(ViewType.TextField.self) { field in
             try field.labelView().text().string() == "Username"
-        })
+        }
         
-        let displayNameField = try view.inspect().find(ViewType.TextField.self, where: { field in
+        let displayNameField = try view.inspect().find(ViewType.TextField.self) { field in
             try field.labelView().text().string() == "Display Name"
-        })
+        }
         
-        let emailField = try view.inspect().find(ViewType.TextField.self, where: { field in
+        let emailField = try view.inspect().find(ViewType.TextField.self) { field in
             try field.labelView().text().string() == "Email"
-        })
+        }
         
-        #expect(usernameField != nil)
-        #expect(displayNameField != nil)
-        #expect(emailField != nil)
+        _ = usernameField
+        _ = displayNameField
+        _ = emailField
+        
+        #expect(true)
     }
     
     @Test
@@ -76,7 +74,10 @@ struct CreateAccountViewTests {
             .environmentObject(vm)
         
         let errorText = try view.inspect().find(text: "Test error message")
-        #expect(errorText != nil)
+        
+        // Again, not optional — can't compare to nil.
+        _ = errorText
+        
+        #expect(true)
     }
 }
-
