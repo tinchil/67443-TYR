@@ -1,3 +1,8 @@
+//
+//  PromptCardTests.swift
+//  Saturdays
+//
+
 import Testing
 import SwiftUI
 import ViewInspector
@@ -5,21 +10,29 @@ import ViewInspector
 
 extension PromptCard: Inspectable {}
 
+@MainActor
 struct PromptCardTests {
 
     @Test
     func testDisplaysPrompt() async throws {
         let view = PromptCard(prompt: "Hello world")
 
-        let text = try view.inspect().find(text: "Hello world").string()
-        #expect(text == "Hello world")
+        try await ViewHosting.host(view) { hosted in
+            let inspected = try hosted.inspect()
+            let text = try inspected.find(text: "Hello world").string()
+            #expect(text == "Hello world")
+        }
     }
 
     @Test
     func testEditButtonExists() async throws {
         let view = PromptCard(prompt: "Sample")
 
-        let button = try view.inspect().find(button: "")
-        #expect(button != nil)
+        try await ViewHosting.host(view) { hosted in
+            let inspected = try hosted.inspect()
+
+            let button = try inspected.find(ViewType.Button.self)
+            #expect(button != nil)
+        }
     }
 }

@@ -1,3 +1,8 @@
+//
+//  LetterCardTests.swift
+//  Saturdays
+//
+
 import Testing
 import SwiftUI
 import ViewInspector
@@ -5,6 +10,7 @@ import ViewInspector
 
 extension LetterCard: Inspectable {}
 
+@MainActor
 struct LetterCardTests {
 
     @Test
@@ -14,7 +20,13 @@ struct LetterCardTests {
             tapped = true
         }
 
-        try view.inspect().find(button: "").tap()
-        #expect(tapped == true)
+        try await ViewHosting.host(view) { hosted in
+            let inspected = try hosted.inspect()
+
+            let button = try inspected.find(ViewType.Button.self)
+            try button.tap()
+
+            #expect(tapped == true)
+        }
     }
 }
