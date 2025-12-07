@@ -1,5 +1,5 @@
 {
-  "originHash" : "17c4b2d1e40fc1032afe7ea3379984ba892d3439e5c3de2156d00e595c3f38de",
+  "originHash" : "2d31fa2d03bb85415c82687107e7da4f6780c845a03e20ae3409ad7d08bee4b4",
   "pins" : [
     {
       "identity" : "abseil-cpp-binary",
@@ -332,6 +332,15 @@
       "state" : {
         "revision" : "395a77f0aa927f0ff73941d7ac35f2b46d47c9db",
         "version" : "1.6.3"
+      }
+    },
+    {
+      "identity" : "viewinspector",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/nalexn/ViewInspector",
+      "state" : {
+        "revision" : "e9a06346499a3a889165647e3f23f8a7b2609a1c",
+        "version" : "0.10.3"
       }
     }
   ],

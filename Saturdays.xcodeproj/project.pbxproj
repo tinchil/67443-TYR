@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A3ED5A0F2EE5C8AD000D8B4C /* ViewInspector in Frameworks */ = {isa = PBXBuildFile; productRef = A3ED5A0E2EE5C8AD000D8B4C /* ViewInspector */; };
 		F46492D02EE020B800DEBA43 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = F46492CF2EE020B800DEBA43 /* FirebaseAnalytics */; };
 		F46492D22EE020B800DEBA43 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F46492D12EE020B800DEBA43 /* FirebaseAuth */; };
 		F50B96A62EE3C5C5009F4C63 /* AWSCore in Frameworks */ = {isa = PBXBuildFile; productRef = F50B96A52EE3C5C5009F4C63 /* AWSCore */; };
@@ -69,6 +70,7 @@
 				F46492D02EE020B800DEBA43 /* FirebaseAnalytics in Frameworks */,
 				F549180D2EAEE3640063DD60 /* FirebaseStorage in Frameworks */,
 				F50B96A82EE3C5C5009F4C63 /* AWSS3 in Frameworks */,
+				A3ED5A0F2EE5C8AD000D8B4C /* ViewInspector in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -158,6 +160,7 @@
 				F46492D12EE020B800DEBA43 /* FirebaseAuth */,
 				F50B96A52EE3C5C5009F4C63 /* AWSCore */,
 				F50B96A72EE3C5C5009F4C63 /* AWSS3 */,
+				A3ED5A0E2EE5C8AD000D8B4C /* ViewInspector */,
 			);
 			productName = Saturdays;
 			productReference = A3A09B5B2E8B304200E822FE /* Saturdays.app */;
@@ -269,6 +272,7 @@
 				F54918072EAEE3640063DD60 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				F54918592EAF08000063DD60 /* XCRemoteSwiftPackageReference "sdk-for-apple" */,
 				F50B96A42EE3C5C5009F4C63 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */,
+				A3ED5A0D2EE5C860000D8B4C /* XCRemoteSwiftPackageReference "ViewInspector" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A3A09B5C2E8B304200E822FE /* Products */;
@@ -482,7 +486,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 97R5R6FY26;
+				DEVELOPMENT_TEAM = 5QXF6Z2NB3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -496,7 +500,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yininghe.Saturdays;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rosemary.Saturdays;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -519,7 +523,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 97R5R6FY26;
+				DEVELOPMENT_TEAM = 5QXF6Z2NB3;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -533,7 +537,7 @@
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.yininghe.Saturdays;
+				PRODUCT_BUNDLE_IDENTIFIER = com.rosemary.Saturdays;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
@@ -772,6 +776,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		A3ED5A0D2EE5C860000D8B4C /* XCRemoteSwiftPackageReference "ViewInspector" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nalexn/ViewInspector";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.10.3;
+			};
+		};
 		F50B96A42EE3C5C5009F4C63 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/aws-amplify/aws-sdk-ios-spm";
@@ -799,6 +811,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A3ED5A0E2EE5C8AD000D8B4C /* ViewInspector */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A3ED5A0D2EE5C860000D8B4C /* XCRemoteSwiftPackageReference "ViewInspector" */;
+			productName = ViewInspector;
+		};
 		F46492CF2EE020B800DEBA43 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F54918072EAEE3640063DD60 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
