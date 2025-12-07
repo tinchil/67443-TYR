@@ -1,6 +1,6 @@
-// SaturdaysSmokeTests.swift
 import Testing
 import Foundation
+import SwiftUI     // ← important so .memory resolves
 @testable import Saturdays
 
 struct SaturdaysSmokeTests {
@@ -28,13 +28,13 @@ struct SaturdaysSmokeTests {
 
         let capsule = CapsuleModel(
             name: "Test Capsule",
-            type: .memory,
+            type: CapsuleType.memory,
             groupID: group.id,
-            coverPhoto: nil
+            coverPhotoURL: nil
         )
 
         #expect(group.memberIDs.contains(user.id))
         #expect(capsule.groupID == group.id)
-        #expect(capsule.type == .memory)
+        #expect(capsule.type == CapsuleType.memory)
     }
 }
