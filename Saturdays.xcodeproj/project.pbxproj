@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A3ED59442EE460E8000D8B4C /* ViewInspector in Frameworks */ = {isa = PBXBuildFile; productRef = A3ED59432EE460E8000D8B4C /* ViewInspector */; };
 		F46492D02EE020B800DEBA43 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = F46492CF2EE020B800DEBA43 /* FirebaseAnalytics */; };
 		F46492D22EE020B800DEBA43 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F46492D12EE020B800DEBA43 /* FirebaseAuth */; };
 		F54918092EAEE3640063DD60 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = F54918082EAEE3640063DD60 /* FirebaseCore */; };
@@ -72,6 +73,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3ED59442EE460E8000D8B4C /* ViewInspector in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -175,6 +177,7 @@
 			);
 			name = SaturdaysTests;
 			packageProductDependencies = (
+				A3ED59432EE460E8000D8B4C /* ViewInspector */,
 			);
 			productName = SaturdaysTests;
 			productReference = F41B70F22EC2AC8D005A4958 /* SaturdaysTests.xctest */;
@@ -264,6 +267,7 @@
 			packageReferences = (
 				F54918072EAEE3640063DD60 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				F54918592EAF08000063DD60 /* XCRemoteSwiftPackageReference "sdk-for-apple" */,
+				A3ED59422EE460B5000D8B4C /* XCRemoteSwiftPackageReference "ViewInspector" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A3A09B5C2E8B304200E822FE /* Products */;
@@ -551,7 +555,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.cmu.yhe.SaturdaysTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -572,7 +576,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				GENERATE_INFOPLIST_FILE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = edu.cmu.yhe.SaturdaysTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -765,6 +769,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		A3ED59422EE460B5000D8B4C /* XCRemoteSwiftPackageReference "ViewInspector" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/nalexn/ViewInspector";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.10.3;
+			};
+		};
 		F54918072EAEE3640063DD60 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -784,6 +796,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		A3ED59432EE460E8000D8B4C /* ViewInspector */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A3ED59422EE460B5000D8B4C /* XCRemoteSwiftPackageReference "ViewInspector" */;
+			productName = ViewInspector;
+		};
 		F46492CF2EE020B800DEBA43 /* FirebaseAnalytics */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = F54918072EAEE3640063DD60 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
