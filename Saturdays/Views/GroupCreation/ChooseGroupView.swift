@@ -10,7 +10,8 @@ import FirebaseAuth
 
 struct ChooseGroupView: View {
     @ObservedObject var capsuleVM: CapsuleDetailsViewModel
-    @StateObject private var groupsVM = GroupsViewModel()
+    @StateObject var groupsVM: GroupsViewModel
+
 
     @State private var showSelectFriends = false
     @State private var selectedGroupID: String?

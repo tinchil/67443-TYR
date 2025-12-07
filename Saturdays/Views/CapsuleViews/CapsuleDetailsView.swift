@@ -49,7 +49,6 @@ struct CapsuleDetailsView: View {
         .navigationTitle("Details")
         .navigationBarTitleDisplayMode(.inline)
         .navigationDestination(isPresented: $showChooseGroup) {
-            ChooseGroupView(capsuleVM: viewModel)
         }
     }
 }

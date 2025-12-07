@@ -14,7 +14,7 @@ struct VideoPlayerView: View {
     let capsuleDescription: String?
     let revealDate: Date?
 
-    @State private var player = AVPlayer()
+    @State public var player = AVPlayer()
     @State private var isPlaying = true
     @State private var showOverlay = false
 

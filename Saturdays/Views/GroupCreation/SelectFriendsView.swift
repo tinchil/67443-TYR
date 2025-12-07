@@ -12,13 +12,14 @@ import FirebaseAuth
 struct SelectFriendsView: View {
     @ObservedObject var capsuleVM: CapsuleDetailsViewModel
     @ObservedObject var groupsVM: GroupsViewModel
-    @StateObject private var friendsVM = FriendsViewModel()
+    @StateObject var friendsVM = FriendsViewModel()
 
-    @State private var selectedFriendIDs: Set<String> = []
-    @State private var searchText: String = ""
-    @State private var groupName: String = ""
-    @State private var showGroupNameAlert = false
-    @State private var showSuccessView = false
+    // In SelectFriendsView.swift
+    @State var selectedFriendIDs: Set<String> = []  // Remove 'private'
+    @State var searchText: String = ""              // Remove 'private'
+    @State var groupName: String = ""               // Remove 'private'
+    @State var showGroupNameAlert = false           // Remove 'private'
+    @State var showSuccessView = false              // Remove 'private'
     @Environment(\.dismiss) var dismiss
 
     var filteredFriends: [Friend] {

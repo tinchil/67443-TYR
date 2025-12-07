@@ -10,7 +10,7 @@ import SwiftUI
 
 struct GroupCreatedSuccessView: View {
     @ObservedObject var capsuleVM: CapsuleDetailsViewModel
-    @State private var navigateToNext = false
+    @State var navigateToNext = false
     @Environment(\.dismiss) var dismiss
 
     var body: some View {

@@ -61,8 +61,8 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @State private var selectedTab: Tab = .home
-    @State private var showCreateOverlay = false
+    @State public var selectedTab: Tab = .home
+    @State public var showCreateOverlay = false
     
     var body: some View {
         ZStack {
