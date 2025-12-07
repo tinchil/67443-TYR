@@ -2,14 +2,13 @@
 //  GeneratedCapsulesPipelineViewModel.swift
 //  Saturdays
 //
-//  Created by Rosemary Yang on 12/7/25.
-//
-
-
-// GeneratedCapsulesPipelineViewModel.swift
 
 import Foundation
 import Combine
+
+// ------------------------------------------------
+// MARK: - Cache Clear Helper
+// ------------------------------------------------
 
 extension PhotoCacheStore {
     func clearCache() {
@@ -22,38 +21,46 @@ extension PhotoCacheStore {
     }
 }
 
+// ------------------------------------------------
+// MARK: - ViewModel
+// ------------------------------------------------
+
 final class GeneratedCapsulesPipelineViewModel: ObservableObject {
 
     @Published var generatedCapsules: [GeneratedCapsuleModel] = []
+    @Published var onThisDayCapsules: [GeneratedCapsuleModel] = []
     @Published var isProcessing: Bool = false
+
     private var hasRun = false
 
+    // ------------------------------------------------
+    // MARK: - RUN PIPELINE
+    // ------------------------------------------------
     func runPipeline() {
-            // Prevent running more than once per app launch
-            guard !hasRun else {
-                print("⚠️ [Pipeline] Already ran — skipping.")
-                return
-            }
-            hasRun = true
-
-            print("🚀 [Pipeline] Starting pipeline...")
-
-            // ❗️REMOVE THIS after first dev test
-            // PhotoCacheStore.shared.clearCache()
-
-            isProcessing = true
-
-            let cache = PhotoCacheStore.shared.loadCache()
-
-            if cache.isEmpty {
-                print("⚠️ [Pipeline] Cache empty → starting ingestion.")
-                ingestAndProcess()
-            } else {
-                print("📦 [Pipeline] Using cached photo metadata.")
-                processCachedPhotos(cache)
-            }
+        guard !hasRun else {
+            print("⚠️ [Pipeline] Already ran — skipping.")
+            return
         }
+        hasRun = true
 
+        print("🚀 [Pipeline] Starting pipeline...")
+//        PhotoCacheStore.shared.clearCache()
+        isProcessing = true
+
+        let cache = PhotoCacheStore.shared.loadCache()
+
+        if cache.isEmpty {
+            print("⚠️ [Pipeline] Cache empty → starting ingestion.")
+            ingestAndProcess()
+        } else {
+            print("📦 [Pipeline] Using cached photo metadata.")
+            processCachedPhotos(cache)
+        }
+    }
+
+    // ------------------------------------------------
+    // MARK: - INGEST + CACHE
+    // ------------------------------------------------
 
     private func ingestAndProcess() {
         PhotoLibraryIngestionService.shared.ingestAllPhotos { entries in
@@ -62,16 +69,21 @@ final class GeneratedCapsulesPipelineViewModel: ObservableObject {
         }
     }
 
+    // ------------------------------------------------
+    // MARK: - PROCESSING
+    // ------------------------------------------------
+
     private func processCachedPhotos(_ entries: [PhotoMetadataCacheEntry]) {
         print("🧠 [Pipeline] Processing \(entries.count) cached photos...")
 
-        // ---------- FACE CLUSTERING ----------
+        // ---- FACE CLUSTERING (placeholder) ----
         let faceClusters = FaceClusterService.shared.clusterFacesHardcoded(from: entries)
+        _ = faceClusters
 
-        // ---------- EVENT CLUSTERING ----------
+        // ---- EVENT CLUSTERING ----
         let eventClusters = EventClusterService.shared.clusterEventsHardcoded(from: entries)
 
-        // ---------- GENERATE CAPSULES ----------
+        // ---- CONVERT CLUSTERS → CAPSULE MODELS ----
         print("🎉 [Pipeline] Creating capsules from event clusters...")
 
         var capsules: [GeneratedCapsuleModel] = []
@@ -79,23 +91,64 @@ final class GeneratedCapsulesPipelineViewModel: ObservableObject {
         for event in eventClusters {
             let cover = event.photos.first?.thumbnailFilename ?? "placeholder"
 
-            let photoIDs = event.photos.map { $0.id }   // ← CACHE ENTRY IDS
+            let photoIDs = event.photos.map { $0.id }   // REAL IDS for detail screen
 
             capsules.append(
                 GeneratedCapsuleModel(
                     name: event.title,
                     coverPhoto: cover,
                     photoCount: event.photos.count,
-                    photoIDs: photoIDs
+                    photoIDs: photoIDs,
+                    generatedAt: Date()
                 )
             )
         }
 
         print("🎉 [Pipeline] Generated \(capsules.count) capsules.")
 
+        // ---- COMPUTE ON THIS DAY ----
+        computeOnThisDayCapsules(from: capsules, cache: entries)
+
         DispatchQueue.main.async {
             self.generatedCapsules = capsules
             self.isProcessing = false
+        }
+    }
+
+    // ------------------------------------------------
+    // MARK: - "ON THIS DAY" CAPSULES
+    // ------------------------------------------------
+
+    private func computeOnThisDayCapsules(from capsules: [GeneratedCapsuleModel],
+                                          cache: [PhotoMetadataCacheEntry])
+    {
+        let today = Date()
+        let cal = Calendar.current
+
+        let todayMonth = cal.component(.month, from: today)
+        let todayDay   = cal.component(.day, from: today)
+        let currentYear = cal.component(.year, from: today)
+
+        var results: [GeneratedCapsuleModel] = []
+
+        for cap in capsules {
+            guard let firstID = cap.photoIDs.first,
+                  let entry = cache.first(where: { $0.id == firstID }) else { continue }
+
+            let comps = cal.dateComponents([.month, .day, .year], from: entry.timestamp)
+
+            if comps.month == todayMonth &&
+               comps.day == todayDay &&
+               comps.year != currentYear
+            {
+                results.append(cap)
+            }
+        }
+
+        print("📅 [On This Day] Found \(results.count) throwback capsules")
+
+        DispatchQueue.main.async {
+            self.onThisDayCapsules = results
         }
     }
 }

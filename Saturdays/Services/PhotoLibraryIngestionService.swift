@@ -50,29 +50,81 @@ final class PhotoLibraryIngestionService {
     private func loadAllPhotos() async -> [PhotoMetadataCacheEntry] {
         let assets = fetchAllAssets()
         let total = assets.count
-        let demoIngestionLimit = 20
+
+        let recentLimit = 20
+        let oldestLimit = 20
 
         print("📸 [Ingestion] Total assets found: \(total)")
-        print("⚡ Using DEMO MODE: limiting ingestion to \(demoIngestionLimit) photos")
+        print("⚡ DEMO MODE: ingesting first \(recentLimit) recent + last \(oldestLimit) oldest photos + all On This Day photos")
 
-        var entries: [PhotoMetadataCacheEntry] = []
-        entries.reserveCapacity(min(total, demoIngestionLimit))
+        var selectedAssets: [PHAsset] = []
+        selectedAssets.reserveCapacity(recentLimit + oldestLimit)
 
-        let count = min(total, demoIngestionLimit)
+        // -------------------------------------
+        // 1️⃣ Most RECENT N photos
+        // -------------------------------------
+        let recentCount = min(total, recentLimit)
+        for index in 0..<recentCount {
+            selectedAssets.append(assets.object(at: index))
+        }
 
-        for index in 0..<count {
-            let asset = assets.object(at: index)
-            print("📸 [Ingestion] Processing asset \(index+1)/\(count), id: \(asset.localIdentifier)")
-
-            if let entry = await processSingleAsset(asset) {
-                entries.append(entry)
-                print("📸 [Ingestion] Added entry for \(asset.localIdentifier)")
-            } else {
-                print("❌ [Ingestion] Failed processing \(asset.localIdentifier)")
+        // -------------------------------------
+        // 2️⃣ Most OLDEST N photos
+        // -------------------------------------
+        if total > recentLimit {
+            let start = max(0, total - oldestLimit)
+            for index in start..<total {
+                let asset = assets.object(at: index)
+                if !selectedAssets.contains(where: { $0.localIdentifier == asset.localIdentifier }) {
+                    selectedAssets.append(asset)
+                }
             }
         }
 
-        print("📦 [Ingestion] Completed ingestion of \(entries.count) assets.")
+        print("📸 Selected \(selectedAssets.count) assets before OnThisDay matching")
+
+        // -------------------------------------
+        // 3️⃣ Add “On This Day” photos (all years)
+        // -------------------------------------
+        let calendar = Calendar.current
+        let today = Date()
+        let todayMonth = calendar.component(.month, from: today)
+        let todayDay   = calendar.component(.day, from: today)
+
+        var onThisDayAssets: [PHAsset] = []
+
+        for i in 0..<total {
+            let asset = assets.object(at: i)
+            guard let date = asset.creationDate else { continue }
+
+            let m = calendar.component(.month, from: date)
+            let d = calendar.component(.day, from: date)
+
+            if m == todayMonth && d == todayDay {
+                if !selectedAssets.contains(where: { $0.localIdentifier == asset.localIdentifier }) {
+                    onThisDayAssets.append(asset)
+                }
+            }
+        }
+
+        print("📅 [On This Day] Found \(onThisDayAssets.count) matching photos")
+
+        selectedAssets.append(contentsOf: onThisDayAssets)
+
+        // -------------------------------------
+        // 4️⃣ Convert → Metadata entries
+        // -------------------------------------
+        var entries: [PhotoMetadataCacheEntry] = []
+        entries.reserveCapacity(selectedAssets.count)
+
+        for (idx, asset) in selectedAssets.enumerated() {
+            print("📸 [Ingestion] Processing \(idx + 1)/\(selectedAssets.count): \(asset.localIdentifier)")
+            if let entry = await processSingleAsset(asset) {
+                entries.append(entry)
+            }
+        }
+
+        print("📦 [Ingestion] Completed metadata for \(entries.count) assets.")
         return entries
     }
 
