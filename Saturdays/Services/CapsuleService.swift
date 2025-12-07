@@ -23,6 +23,8 @@ class CapsuleService {
         type: CapsuleType,
         groupID: String,
         mediaURLs: [String] = [],
+        revealDate: Date? = nil,
+        minContribution: Int? = nil,
         completion: @escaping (String?) -> Void
     ) {
         let capsuleID = UUID().uuidString
@@ -30,7 +32,8 @@ class CapsuleService {
 
         // Create the capsule document in capsules collection
         let capsuleRef = db.collection("capsules").document(capsuleID)
-        batch.setData([
+
+        var data: [String: Any] = [
             "id": capsuleID,
             "name": name,
             "type": type.rawValue,
@@ -40,7 +43,17 @@ class CapsuleService {
             "mediaURLs": mediaURLs,
             "finalVideoURL": NSNull(),
             "coverPhotoURL": NSNull()
-        ], forDocument: capsuleRef)
+        ]
+
+        // Add optional fields if provided
+        if let revealDate = revealDate {
+            data["revealDate"] = revealDate
+        }
+        if let minContribution = minContribution {
+            data["minContribution"] = minContribution
+        }
+
+        batch.setData(data, forDocument: capsuleRef)
 
         // Add capsuleID to the group's capsuleIDs array
         let groupRef = db.collection("groups").document(groupID)

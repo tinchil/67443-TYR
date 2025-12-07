@@ -137,7 +137,9 @@ struct AddPhotosView: View {
             name: capsuleVM.capsule.name,
             type: capsuleVM.capsule.type,
             groupID: groupID,
-            mediaURLs: []
+            mediaURLs: [],
+            revealDate: capsuleVM.capsule.revealDate,
+            minContribution: capsuleVM.capsule.minContribution
         ) { capsuleID in
             guard let capsuleID = capsuleID else {
                 print("❌ Failed to create capsule")

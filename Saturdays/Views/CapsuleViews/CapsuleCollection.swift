@@ -132,6 +132,11 @@ struct CapsuleCollection: View {
 struct CapsuleCarouselCard: View {
     let capsule: CapsuleModel
 
+    private var isLocked: Bool {
+        guard let revealDate = capsule.revealDate else { return false }
+        return Date() < revealDate
+    }
+
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             // Capsule image (circular)
@@ -166,6 +171,17 @@ struct CapsuleCarouselCard: View {
                         .fill(Color.gray.opacity(0.2))
                         .frame(width: 160, height: 160)
                 }
+
+                // Lock overlay
+                if isLocked {
+                    Circle()
+                        .fill(Color.black.opacity(0.5))
+                        .frame(width: 160, height: 160)
+
+                    Image(systemName: "lock.fill")
+                        .font(.system(size: 40))
+                        .foregroundColor(.white)
+                }
             }
 
             // Capsule name
@@ -174,8 +190,23 @@ struct CapsuleCarouselCard: View {
                 .fontWeight(.medium)
                 .lineLimit(1)
                 .frame(width: 160)
+
+            // Lock status
+            if isLocked, let revealDate = capsule.revealDate {
+                Text("Locked until \(formattedDate(revealDate))")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .lineLimit(1)
+                    .frame(width: 160)
+            }
         }
         .frame(width: 160)
+    }
+
+    private func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .short
+        return formatter.string(from: date)
     }
 }
                      

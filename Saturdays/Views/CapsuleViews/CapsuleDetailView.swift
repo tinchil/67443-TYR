@@ -22,7 +22,10 @@ struct CapsuleDetailView: View {
     private let capsuleService = CapsuleService()
     private let storageService = StorageService()
 
-    private var isUnlocked: Bool { true }
+    private var isUnlocked: Bool {
+        guard let revealDate = capsule.revealDate else { return true }
+        return Date() >= revealDate
+    }
 
     // ----------------------------------------------------------
     // MARK: - BODY
@@ -196,8 +199,37 @@ struct CapsuleDetailView: View {
 
     private var finalVideoSection: some View {
         Group {
-            if let finalString = capsule.finalVideoURL,
-               let url = URL(string: finalString) {
+            // Check if capsule is locked
+            if !isUnlocked {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Final Video")
+                        .font(.headline)
+                        .padding(.horizontal)
+
+                    VStack(spacing: 12) {
+                        Image(systemName: "lock.fill")
+                            .font(.system(size: 40))
+                            .foregroundColor(.gray)
+
+                        if let revealDate = capsule.revealDate {
+                            Text("Locked until \(formattedDate(revealDate))")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+
+                        Text("The final video will be available after the reveal date")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                            .multilineTextAlignment(.center)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding()
+                    .background(Color.gray.opacity(0.1))
+                    .cornerRadius(12)
+                    .padding(.horizontal)
+                }
+            } else if let finalString = capsule.finalVideoURL,
+                      let url = URL(string: finalString) {
 
                 VStack(alignment: .leading, spacing: 12) {
 

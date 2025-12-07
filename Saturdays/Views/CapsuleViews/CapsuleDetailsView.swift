@@ -11,6 +11,8 @@ import SwiftUI
 struct CapsuleDetailsView: View {
     @ObservedObject var viewModel: CapsuleDetailsViewModel
     @State private var showChooseGroup = false
+    @State private var revealDate = Calendar.current.date(byAdding: .day, value: 7, to: Date()) ?? Date()
+    @State private var enableRevealDate = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -28,8 +30,36 @@ struct CapsuleDetailsView: View {
                 .cornerRadius(12)
                 .shadow(radius: 2)
 
+            // MARK: - REVEAL DATE TOGGLE
+            VStack(alignment: .leading, spacing: 12) {
+                Toggle("Lock until reveal date", isOn: $enableRevealDate)
+                    .font(.headline)
+
+                if enableRevealDate {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Capsule will be locked until:")
+                            .font(.subheadline)
+                            .foregroundColor(.gray)
+
+                        DatePicker("Reveal Date", selection: $revealDate, in: Date()..., displayedComponents: .date)
+                            .datePickerStyle(.compact)
+                            .labelsHidden()
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(12)
+                            .shadow(radius: 2)
+
+                        Text("Members can add photos, but won't see the final video until this date.")
+                            .font(.caption)
+                            .foregroundColor(.gray)
+                    }
+                }
+            }
+
             // MARK: - NEXT BUTTON
             Button {
+                // Save reveal date to viewModel if enabled
+                viewModel.capsule.revealDate = enableRevealDate ? revealDate : nil
                 showChooseGroup = true
             } label: {
                 Text("Next")
