@@ -9,10 +9,11 @@
 import Foundation
 import SwiftUI
 
-struct GeneratedCapsuleModel: Identifiable {
+struct GeneratedCapsuleModel: Identifiable, Codable {
     var id = UUID().uuidString
     var name: String
-    var coverPhoto: String      // local asset for demo
+    var coverPhoto: String          // thumbnail filename
     var photoCount: Int
+    var photoIDs: [String]          // ← REAL ENTRY IDs
     var generatedAt: Date = Date()
 }

@@ -1,13 +1,14 @@
 // PhotoCacheStore.swift
 
 import Foundation
+import UIKit
 
 final class PhotoCacheStore {
 
     static let shared = PhotoCacheStore()
     private init() {}
 
-    private var cacheURL: URL {
+    var cacheURL: URL {
         let dir = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         return dir.appendingPathComponent("photo_cache.json")
     }
@@ -40,5 +41,20 @@ final class PhotoCacheStore {
         let data = try? JSONEncoder().encode(photos)
         try? data?.write(to: cacheURL)
         print("💾 [Cache] Saved cache successfully.")
+    }
+}
+
+extension PhotoCacheStore {
+    func loadEntry(for id: String) -> PhotoMetadataCacheEntry? {
+        let all = loadCache()
+        return all.first(where: { $0.id == id })
+    }
+}
+
+extension PhotoCacheStore {
+    func loadThumbnail(filename: String) -> UIImage? {
+        let url = thumbnailDirectory.appendingPathComponent(filename)
+        guard let data = try? Data(contentsOf: url) else { return nil }
+        return UIImage(data: data)
     }
 }

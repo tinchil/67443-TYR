@@ -2,14 +2,6 @@
 //  GeneratedCapsulesSection.swift
 //  Saturdays
 //
-//  Created by Rosemary Yang on 12/7/25.
-//
-
-
-//
-//  GeneratedCapsulesSection.swift
-//  Saturdays
-//
 
 import SwiftUI
 
@@ -25,6 +17,7 @@ struct GeneratedCapsulesSection: View {
                 .foregroundColor(.primary)
                 .padding(.top, 6)
 
+            // Loading indicator
             if isLoading {
                 HStack(spacing: 10) {
                     ProgressView()
@@ -34,6 +27,7 @@ struct GeneratedCapsulesSection: View {
                 .padding(.vertical, 10)
             }
 
+            // No capsules yet (done loading)
             if capsules.isEmpty && !isLoading {
                 Text("No generated capsules yet.")
                     .foregroundColor(.secondary)
@@ -41,23 +35,30 @@ struct GeneratedCapsulesSection: View {
             } else {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 16) {
+
                         ForEach(capsules) { cap in
-                            VStack(alignment: .leading) {
-                                Image(cap.coverPhoto)
-                                    .resizable()
-                                    .scaledToFill()
-                                    .frame(width: 120, height: 120)
-                                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                            NavigationLink {
+                                GeneratedCapsuleDetailView(capsule: cap)
+                            } label: {
+                                VStack(alignment: .leading, spacing: 6) {
 
-                                Text(cap.name)
-                                    .font(.headline)
-                                    .lineLimit(1)
+                                    GeneratedCapsuleThumbnailView(filename: cap.coverPhoto)
+                                        .frame(width: 120, height: 120)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                        .contentShape(Rectangle())
 
-                                Text("\(cap.photoCount) photos")
-                                    .font(.subheadline)
-                                    .foregroundColor(.secondary)
+                                    Text(cap.name)
+                                        .font(.headline)
+                                        .lineLimit(1)
+                                        .foregroundColor(.primary)
+
+                                    Text("\(cap.photoCount) photos")
+                                        .font(.subheadline)
+                                        .foregroundColor(.secondary)
+                                }
+                                .frame(width: 120)
                             }
-                            .frame(width: 120)
+                            .buttonStyle(.plain)    // Prevents weird blue highlight
                         }
                     }
                     .padding(.vertical, 5)
@@ -66,3 +67,4 @@ struct GeneratedCapsulesSection: View {
         }
     }
 }
+

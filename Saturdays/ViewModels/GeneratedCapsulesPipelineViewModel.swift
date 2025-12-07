@@ -11,25 +11,49 @@
 import Foundation
 import Combine
 
+extension PhotoCacheStore {
+    func clearCache() {
+        print("🗑️ [Cache] Clearing old cache...")
+
+        try? FileManager.default.removeItem(at: cacheURL)
+        try? FileManager.default.removeItem(at: thumbnailDirectory)
+
+        print("🗑️ [Cache] Cache + thumbnails deleted.")
+    }
+}
+
 final class GeneratedCapsulesPipelineViewModel: ObservableObject {
 
     @Published var generatedCapsules: [GeneratedCapsuleModel] = []
     @Published var isProcessing: Bool = false
+    private var hasRun = false
 
     func runPipeline() {
-        print("🚀 [Pipeline] Starting pipeline...")
-        isProcessing = true
+            // Prevent running more than once per app launch
+            guard !hasRun else {
+                print("⚠️ [Pipeline] Already ran — skipping.")
+                return
+            }
+            hasRun = true
 
-        let cache = PhotoCacheStore.shared.loadCache()
+            print("🚀 [Pipeline] Starting pipeline...")
 
-        if cache.isEmpty {
-            print("⚠️ [Pipeline] Cache empty → starting ingestion.")
-            ingestAndProcess()
-        } else {
-            print("📦 [Pipeline] Using cached photo metadata.")
-            processCachedPhotos(cache)
+            // ❗️REMOVE THIS after first dev test
+            // PhotoCacheStore.shared.clearCache()
+
+            isProcessing = true
+
+            let cache = PhotoCacheStore.shared.loadCache()
+
+            if cache.isEmpty {
+                print("⚠️ [Pipeline] Cache empty → starting ingestion.")
+                ingestAndProcess()
+            } else {
+                print("📦 [Pipeline] Using cached photo metadata.")
+                processCachedPhotos(cache)
+            }
         }
-    }
+
 
     private func ingestAndProcess() {
         PhotoLibraryIngestionService.shared.ingestAllPhotos { entries in
@@ -54,11 +78,15 @@ final class GeneratedCapsulesPipelineViewModel: ObservableObject {
 
         for event in eventClusters {
             let cover = event.photos.first?.thumbnailFilename ?? "placeholder"
+
+            let photoIDs = event.photos.map { $0.id }   // ← CACHE ENTRY IDS
+
             capsules.append(
                 GeneratedCapsuleModel(
                     name: event.title,
                     coverPhoto: cover,
-                    photoCount: event.photos.count
+                    photoCount: event.photos.count,
+                    photoIDs: photoIDs
                 )
             )
         }
