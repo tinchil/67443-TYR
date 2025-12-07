@@ -10,7 +10,7 @@ import Foundation
 import SwiftUI
 
 struct GeneratedCapsuleModel: Identifiable, Codable {
-    var id = UUID().uuidString
+    var id: String = UUID().uuidString
     var name: String
     var coverPhoto: String          // thumbnail filename
     var photoCount: Int

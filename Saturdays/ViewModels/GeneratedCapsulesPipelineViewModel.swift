@@ -29,6 +29,7 @@ final class GeneratedCapsulesPipelineViewModel: ObservableObject {
 
     @Published var generatedCapsules: [GeneratedCapsuleModel] = []
     @Published var onThisDayCapsules: [GeneratedCapsuleModel] = []
+    @Published var faceClusters: [FaceCluster] = []
     @Published var isProcessing: Bool = false
 
     private var hasRun = false
@@ -82,6 +83,12 @@ final class GeneratedCapsulesPipelineViewModel: ObservableObject {
         for c in faceClusters {
             print("🙂 [FaceCluster] \(c.title) = \(c.photos.count) photos")
         }
+
+        // publish
+        DispatchQueue.main.async {
+            self.faceClusters = faceClusters
+        }
+
 
         // ---- EVENT CLUSTERING ----
         let eventClusters = EventClusterService.shared.clusterEventsHardcoded(from: entries)

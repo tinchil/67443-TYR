@@ -85,3 +85,17 @@ private func averageEmbedding(_ vectors: [[Float]]) -> [Float] {
     let c = Float(vectors.count)
     return sum.map { $0 / c }
 }
+
+extension FaceCluster {
+    func asGeneratedCapsule() -> GeneratedCapsuleModel {
+        GeneratedCapsuleModel(
+            id: self.id.uuidString,
+            name: self.title,
+            coverPhoto: self.photos.first?.thumbnailFilename ?? "",
+            photoCount: self.photos.count,
+            photoIDs: self.photos.map { $0.id },
+            generatedAt: Date()
+        )
+    }
+}
+

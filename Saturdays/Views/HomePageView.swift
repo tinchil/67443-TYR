@@ -51,6 +51,13 @@ struct HomePageView: View {
                                 .padding(.top, 12)
                         }
 
+                        // MARK: - FACE CLUSTERS SECTION
+                        if !aiPipeline.faceClusters.isEmpty {
+                            FaceClustersSection(clusters: aiPipeline.faceClusters)
+                                .padding(.horizontal)
+                                .padding(.top, 12)
+                        }
+
                         // MARK: - AI GENERATED CAPSULES
                         GeneratedCapsulesSection(
                             capsules: aiPipeline.generatedCapsules,
@@ -191,6 +198,59 @@ struct OnThisDaySection: View {
                                     .foregroundColor(.primary)
 
                                 Text("\(cap.photoCount) photos")
+                                    .font(.subheadline)
+                                    .foregroundColor(.secondary)
+                            }
+                            .frame(width: 120)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+                .padding(.vertical, 5)
+            }
+        }
+    }
+}
+
+
+// --------------------------------------------------
+// MARK: - FACE CLUSTERS SECTION
+// --------------------------------------------------
+
+struct FaceClustersSection: View {
+    let clusters: [FaceCluster]
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+
+            Text("People You Spent Time With")
+                .font(.headline)
+                .foregroundColor(.primary)
+
+            Text("Photos grouped by detected faces.")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    ForEach(clusters) { cluster in
+                        NavigationLink {
+                            GeneratedCapsuleDetailView(capsule: cluster.asGeneratedCapsule())
+                        } label: {
+                            VStack(alignment: .leading, spacing: 6) {
+
+                                if let cover = cluster.photos.first {
+                                    GeneratedCapsuleThumbnailView(filename: cover.thumbnailFilename)
+                                        .frame(width: 120, height: 120)
+                                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                                }
+
+                                Text(cluster.title)
+                                    .font(.headline)
+                                    .lineLimit(1)
+                                    .foregroundColor(.primary)
+
+                                Text("\(cluster.photos.count) photos")
                                     .font(.subheadline)
                                     .foregroundColor(.secondary)
                             }
