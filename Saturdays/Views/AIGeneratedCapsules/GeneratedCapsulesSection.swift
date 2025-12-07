@@ -12,7 +12,7 @@ struct GeneratedCapsulesSection: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
 
-            Text("Capsules Generated For You")
+            Text("Your Memories, Organized into Events")
                 .font(.headline)
                 .foregroundColor(.primary)
                 .padding(.top, 6)
@@ -21,7 +21,7 @@ struct GeneratedCapsulesSection: View {
             if isLoading {
                 HStack(spacing: 10) {
                     ProgressView()
-                    Text("Analyzing your photos…")
+                    Text("Analyzing your photos and grouping them into events…")
                         .foregroundColor(.secondary)
                 }
                 .padding(.vertical, 10)
@@ -29,7 +29,7 @@ struct GeneratedCapsulesSection: View {
 
             // No capsules yet (done loading)
             if capsules.isEmpty && !isLoading {
-                Text("No generated capsules yet.")
+                Text("No event capsules yet — keep capturing moments!")
                     .foregroundColor(.secondary)
                     .font(.subheadline)
             } else {
