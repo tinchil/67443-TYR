@@ -11,7 +11,9 @@ struct HomePageView: View {
 
     // ViewModels
     @StateObject private var homeVM = HomeViewModel()
-    @EnvironmentObject var auth: AuthViewModel     // ⬅ ADD THIS
+    @StateObject private var aiPipeline = GeneratedCapsulesPipelineViewModel()   // ⭐ NEW
+    @EnvironmentObject var auth: AuthViewModel
+
     @State private var showCreateCapsule = false
     
     var body: some View {
@@ -63,7 +65,7 @@ struct HomePageView: View {
                             .padding(.horizontal)
                         
                         
-                        // MARK: - START NEW CAPSULE
+                        // MARK: - START NEW CAPSULE SECTION
                         Text("Start a new Capsule")
                             .foregroundColor(Color(red: 0/255, green: 0/255, blue: 142/255))
                             .font(.subheadline)
@@ -73,13 +75,11 @@ struct HomePageView: View {
                         
                         HStack(spacing: 20) {
                             
-                            // Memory capsule button
                             MemoryCard {
                                 homeVM.startCapsule(type: .memory)
                                 showCreateCapsule = true
                             }
                             
-                            // Letter capsule button
                             LetterCard {
                                 homeVM.startCapsule(type: .letter)
                                 showCreateCapsule = true
@@ -88,6 +88,7 @@ struct HomePageView: View {
                         .padding(.horizontal)
                         .frame(maxWidth: .infinity, alignment: .center)
                         
+                        
                         // MARK: - DESCRIPTION
                         Text("Choose a Memory Capsule (photos) or Letter Capsule (messages) to unlock later.")
                             .foregroundColor(.secondary)
@@ -95,8 +96,17 @@ struct HomePageView: View {
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 40)
                             .frame(maxWidth: .infinity, alignment: .center)
+                            .padding(.bottom, 10)
+
                         
-                        Spacer(minLength: 80)
+                        // ⭐⭐⭐ AI-GENERATED CAPSULES SECTION ⭐⭐⭐
+                        GeneratedCapsulesSection(
+                            capsules: aiPipeline.generatedCapsules,
+                            isLoading: aiPipeline.isProcessing
+                        )
+                        .padding(.horizontal)
+                        
+                        Spacer(minLength: 120)
                     }
                 }
             }
@@ -107,7 +117,7 @@ struct HomePageView: View {
                 showCreateCapsule = false
             }
 
-            // ⭐ NEW — logout toolbar button (top-right)
+            // Logout toolbar
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
@@ -121,12 +131,12 @@ struct HomePageView: View {
                     }
                 }
             }
+
+            // ⭐ Run pipeline when view appears
+            .onAppear {
+                aiPipeline.runPipeline()
+            }
         }
     }
 }
 
-
-//#Preview {
-//    HomePageView()
-//}
-//
