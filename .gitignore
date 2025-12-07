@@ -1,5 +1,9 @@
-# AWS Credentials - NEVER COMMIT!
+# AWS Credentials
 Saturdays/Config/AWSConfig.swift
+AWSConfig.swift
+*/AWSConfig.swift
+**/AWSConfig.swift
+
 
 # Xcode
 *.xcuserstate
