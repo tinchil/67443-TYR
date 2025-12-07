@@ -2,17 +2,12 @@
 //  FaceCluster.swift
 //  Saturdays
 //
-//  Created by Rosemary Yang on 12/7/25.
-//
-
-
-// FaceClusterService.swift
-
 import Foundation
 
-struct FaceCluster {
-    let clusterID: Int
-    let photoIDs: [String]
+struct FaceCluster: Identifiable {
+    let id = UUID()
+    let photos: [PhotoMetadataCacheEntry]
+    let title: String
 }
 
 final class FaceClusterService {
@@ -20,23 +15,73 @@ final class FaceClusterService {
     static let shared = FaceClusterService()
     private init() {}
 
-    /// Hardcoded: last 10 photos form 2 fake clusters.
-    func clusterFacesHardcoded(from photos: [PhotoMetadataCacheEntry]) -> [FaceCluster] {
+    func clusterFaces(
+        from photos: [PhotoMetadataCacheEntry],
+        threshold: Float = 0.25
+    ) -> [FaceCluster] {
 
-        let last10 = Array(photos.suffix(10))
-        let ids = last10.map { $0.id }
+        let items = photos.compactMap { entry -> (PhotoMetadataCacheEntry, [Float])? in
+            guard let emb = entry.faceEmbedding else { return nil }
+            return (entry, emb)
+        }
 
-        print("🙂 [FaceCluster] Hardcoded clustering on last \(ids.count) photos")
+        guard !items.isEmpty else { return [] }
 
-        let clusterA = Array(ids.prefix(ids.count/2))
-        let clusterB = Array(ids.suffix(ids.count/2))
+        var clusters: [[PhotoMetadataCacheEntry]] = []
+        var centroids: [[Float]] = []
 
-        print("🙂 [FaceCluster] Cluster A = \(clusterA.count) photos")
-        print("🙂 [FaceCluster] Cluster B = \(clusterB.count) photos")
+        for (photo, embedding) in items {
 
-        return [
-            FaceCluster(clusterID: 0, photoIDs: clusterA),
-            FaceCluster(clusterID: 1, photoIDs: clusterB)
-        ]
+            var bestIndex: Int?
+            var bestDist = Float.greatestFiniteMagnitude
+
+            for (i, centroid) in centroids.enumerated() {
+                let d = cosineDistance(embedding, centroid)
+                if d < bestDist {
+                    bestDist = d
+                    bestIndex = i
+                }
+            }
+
+            if let idx = bestIndex, bestDist < threshold {
+                clusters[idx].append(photo)
+                centroids[idx] = averageEmbedding(clusters[idx].compactMap { $0.faceEmbedding })
+            } else {
+                clusters.append([photo])
+                centroids.append(embedding)
+            }
+        }
+
+        return clusters.enumerated().map { (i, group) in
+            FaceCluster(
+                photos: group,
+                title: "Person \(i+1)"
+            )
+        }
     }
+}
+
+// MARK: Helpers
+
+private func cosineDistance(_ a: [Float], _ b: [Float]) -> Float {
+    var dot: Float = 0, normA: Float = 0, normB: Float = 0
+    for i in 0..<min(a.count, b.count) {
+        let x = a[i], y = b[i]
+        dot += x * y
+        normA += x*x
+        normB += y*y
+    }
+    let denom = (normA.squareRoot() * normB.squareRoot())
+    if denom == 0 { return 1 }
+    return 1 - dot/denom
+}
+
+private func averageEmbedding(_ vectors: [[Float]]) -> [Float] {
+    guard let first = vectors.first else { return [] }
+    var sum = first
+    for v in vectors.dropFirst() {
+        for i in 0..<v.count { sum[i] += v[i] }
+    }
+    let c = Float(vectors.count)
+    return sum.map { $0 / c }
 }
