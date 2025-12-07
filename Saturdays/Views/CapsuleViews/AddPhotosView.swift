@@ -14,7 +14,11 @@ struct AddPhotosView: View {
     @State private var loadedImages: [UIImage] = []
     @State private var showingPhotoPicker = false
     @State private var showSuccessView = false
+    @State private var isUploading = false
     @Environment(\.dismiss) var dismiss
+
+    private let storageService = StorageService()
+    private let capsuleService = CapsuleService()
 
     let columns = [
         GridItem(.flexible()),
@@ -69,16 +73,31 @@ struct AddPhotosView: View {
 
             // MARK: - DONE BUTTON
             Button {
-                showSuccessView = true
+                createCapsule()
             } label: {
-                Text("Done")
-                    .font(.headline)
-                    .foregroundColor(.white)
+                if isUploading {
+                    HStack {
+                        ProgressView()
+                            .progressViewStyle(CircularProgressViewStyle(tint: .white))
+                        Text("Uploading...")
+                            .font(.headline)
+                            .foregroundColor(.white)
+                    }
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.black)
+                    .background(Color.gray)
                     .cornerRadius(12)
+                } else {
+                    Text("Done")
+                        .font(.headline)
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(loadedImages.isEmpty ? Color.gray : Color.black)
+                        .cornerRadius(12)
+                }
             }
+            .disabled(loadedImages.isEmpty || isUploading)
             .padding(.horizontal)
             .padding(.top, 40)
             .padding(.bottom, 30)
@@ -100,6 +119,54 @@ struct AddPhotosView: View {
         )
         .onChange(of: selectedPhotos) { newItems in
             loadPhotos(from: newItems)
+        }
+    }
+
+    // MARK: - Create Capsule
+    func createCapsule() {
+        guard !loadedImages.isEmpty else { return }
+        guard let groupID = capsuleVM.selectedGroupID else {
+            print("❌ No group selected")
+            return
+        }
+
+        isUploading = true
+
+        // First, create the capsule in Firestore (without media URLs yet)
+        capsuleService.createCapsule(
+            name: capsuleVM.capsule.name,
+            type: capsuleVM.capsule.type,
+            groupID: groupID,
+            mediaURLs: []
+        ) { capsuleID in
+            guard let capsuleID = capsuleID else {
+                print("❌ Failed to create capsule")
+                isUploading = false
+                return
+            }
+
+            print("✅ Capsule created with ID: \(capsuleID)")
+
+            // Now upload images to Firebase Storage
+            storageService.uploadImages(loadedImages, capsuleID: capsuleID) { uploadedURLs in
+                guard !uploadedURLs.isEmpty else {
+                    print("❌ No images uploaded successfully")
+                    isUploading = false
+                    return
+                }
+
+                // Update capsule with uploaded media URLs
+                capsuleService.updateCapsuleMedia(capsuleID: capsuleID, mediaURLs: uploadedURLs) { success in
+                    isUploading = false
+
+                    if success {
+                        print("✅ Capsule media updated with \(uploadedURLs.count) photos")
+                        showSuccessView = true
+                    } else {
+                        print("❌ Failed to update capsule media")
+                    }
+                }
+            }
         }
     }
 

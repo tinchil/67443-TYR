@@ -32,6 +32,7 @@ class GroupsService {
             "id": groupID,
             "name": name,
             "memberIDs": memberIDs,
+            "capsuleIDs": [],
             "createdBy": currentUserID,
             "createdAt": Date()
         ], forDocument: groupRef)
