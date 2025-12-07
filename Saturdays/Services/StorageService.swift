@@ -300,4 +300,120 @@ class StorageService {
             completion(allSucceeded)
         }
     }
+    
+    // MARK: - UPLOAD VIDEO
+    func uploadVideo(
+        _ videoURL: URL,
+        capsuleID: String,
+        completion: @escaping (String?) -> Void
+    ) {
+        // Read video data
+        guard let videoData = try? Data(contentsOf: videoURL) else {
+            print("❌ Failed to read video data")
+            completion(nil)
+            return
+        }
+        
+        print("📤 Uploading video to S3 (size: \(videoData.count) bytes)")
+        
+        // Path: capsules/{capsuleID}/final_video.mp4
+        let path = AWSConfig.capsuleFinalVideoPath(capsuleID: capsuleID)
+        
+        // Build S3 URL
+        let urlString = "https://\(AWSConfig.bucketName).s3.\(AWSConfig.region).amazonaws.com/\(path)"
+        guard let url = URL(string: urlString) else {
+            print("❌ Invalid URL")
+            completion(nil)
+            return
+        }
+        
+        // Create request with AWS Signature V4
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("video/mp4", forHTTPHeaderField: "Content-Type")
+        
+        // Generate AWS Signature V4 headers
+        let now = Date()
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyyMMdd'T'HHmmss'Z'"
+        dateFormatter.timeZone = TimeZone(abbreviation: "UTC")
+        let amzDate = dateFormatter.string(from: now)
+        let dateStamp = String(amzDate.prefix(8))
+        
+        request.setValue(amzDate, forHTTPHeaderField: "x-amz-date")
+        
+        // Calculate content hash
+        let payloadHash = sha256Hash(data: videoData)
+        request.setValue(payloadHash, forHTTPHeaderField: "x-amz-content-sha256")
+        
+        // Generate authorization header (reuse existing method, but with video/mp4)
+        let canonicalHeaders = "content-type:video/mp4\nhost:\(AWSConfig.bucketName).s3.\(AWSConfig.region).amazonaws.com\nx-amz-content-sha256:\(payloadHash)\nx-amz-date:\(amzDate)\n"
+        let signedHeaders = "content-type;host;x-amz-content-sha256;x-amz-date"
+        
+        let authorization = generateAWSv4SignatureForVideo(
+            method: "PUT",
+            path: "/\(path)",
+            payloadHash: payloadHash,
+            amzDate: amzDate,
+            dateStamp: dateStamp,
+            canonicalHeaders: canonicalHeaders,
+            signedHeaders: signedHeaders
+        )
+        
+        request.setValue(authorization, forHTTPHeaderField: "Authorization")
+        
+        print("🔑 Uploading to: \(urlString)")
+        
+        // Upload
+        let task = URLSession.shared.uploadTask(with: request, from: videoData) { data, response, error in
+            if let error = error {
+                print("❌ Error uploading video: \(error.localizedDescription)")
+                DispatchQueue.main.async {
+                    completion(nil)
+                }
+                return
+            }
+            
+            if let httpResponse = response as? HTTPURLResponse {
+                if httpResponse.statusCode == 200 {
+                    let publicURL = AWSConfig.publicURL(for: path)
+                    print("✅ Video uploaded successfully: \(publicURL)")
+                    DispatchQueue.main.async {
+                        completion(publicURL)
+                    }
+                } else {
+                    print("❌ Upload failed with status code: \(httpResponse.statusCode)")
+                    if let data = data, let responseBody = String(data: data, encoding: .utf8) {
+                        print("Response: \(responseBody)")
+                    }
+                    DispatchQueue.main.async {
+                        completion(nil)
+                    }
+                }
+            }
+        }
+        
+        task.resume()
+    }
+
+    // Helper method for video signature (same as images but separate for clarity)
+    private func generateAWSv4SignatureForVideo(method: String, path: String, payloadHash: String, amzDate: String, dateStamp: String, canonicalHeaders: String, signedHeaders: String) -> String {
+        let algorithm = "AWS4-HMAC-SHA256"
+        let credentialScope = "\(dateStamp)/\(AWSConfig.region)/s3/aws4_request"
+        
+        let canonicalRequest = "\(method)\n\(path)\n\n\(canonicalHeaders)\n\(signedHeaders)\n\(payloadHash)"
+        let canonicalRequestHash = sha256Hash(string: canonicalRequest)
+        
+        let stringToSign = """
+        \(algorithm)
+        \(amzDate)
+        \(credentialScope)
+        \(canonicalRequestHash)
+        """
+        
+        let signingKey = getSignatureKey(key: AWSConfig.secretAccessKey, dateStamp: dateStamp, regionName: AWSConfig.region, serviceName: "s3")
+        let signature = hmacSHA256(key: signingKey, data: Data(stringToSign.utf8)).map { String(format: "%02x", $0) }.joined()
+        
+        return "\(algorithm) Credential=\(AWSConfig.accessKeyID)/\(credentialScope), SignedHeaders=\(signedHeaders), Signature=\(signature)"
+    }
 }

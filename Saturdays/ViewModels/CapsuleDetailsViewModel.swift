@@ -17,10 +17,22 @@ class CapsuleDetailsViewModel: ObservableObject {
         self.capsule = capsule
     }
 
-    // MARK: - Set Group
     func setGroup(groupID: String, memberIDs: [String]) {
         self.selectedGroupID = groupID
         self.selectedMemberIDs = memberIDs
         self.capsule.groupID = groupID
+
+        // defaults
+        if capsule.revealDate == nil { capsule.revealDate = Date() }
+        if capsule.minContribution == nil { capsule.minContribution = 0 }
+    }
+
+    // NEW
+    func setReveal(date: Date?) {
+        capsule.revealDate = date ?? Date()
+    }
+
+    func setMinContribution(_ count: Int?) {
+        capsule.minContribution = count ?? 0
     }
 }

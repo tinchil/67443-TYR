@@ -82,16 +82,12 @@ struct ChooseGroupView: View {
             SelectFriendsView(capsuleVM: capsuleVM, groupsVM: groupsVM)
         }
         .navigationDestination(isPresented: $navigateToPhotos) {
-            if capsuleVM.capsule.type == .memory {
-                AddPhotosView(capsuleVM: capsuleVM)
-            } else {
-                Text("Letter Editor Coming Soon")
-                    .font(.title)
-            }
+            RevealSettingsView(capsuleVM: capsuleVM)
         }
         .onAppear {
+            print("📣 ChooseGroupView appeared. Loading groups…")
             groupsVM.loadGroups()
-        }
+        } 
     }
 
 

@@ -19,6 +19,8 @@ struct CapsuleModel: Identifiable, Codable, Sendable {
     var mediaURLs: [String]                 // URLs of uploaded images/videos
     var finalVideoURL: String?              // URL of the compiled final video
     var coverPhotoURL: String?              // URL of cover photo
+    var revealDate: Date?
+    var minContribution: Int?
 
     // Convenience initializer for creating new capsules in UI
     init(
@@ -41,6 +43,8 @@ struct CapsuleModel: Identifiable, Codable, Sendable {
         self.mediaURLs = mediaURLs
         self.finalVideoURL = finalVideoURL
         self.coverPhotoURL = coverPhotoURL
+        self.revealDate = nil
+        self.minContribution = nil
     }
 }
 

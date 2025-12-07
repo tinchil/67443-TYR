@@ -1,12 +1,6 @@
-//
-//  VideoPlayerView.swift
-//  Saturdays
-//
-//  Created by Rosemary Yang on 11/10/25.
-//
-
 import SwiftUI
 import AVKit
+import Combine
 
 struct VideoPlayerView: View {
     let url: URL
@@ -14,46 +8,67 @@ struct VideoPlayerView: View {
     let capsuleDescription: String?
     let revealDate: Date?
 
-    @State public var player = AVPlayer()
+    @State private var player: AVPlayer?
     @State private var isPlaying = true
     @State private var showOverlay = false
+    @State private var cancellables = Set<AnyCancellable>()
+    @State private var playerStatus: String = "Initializing..."
 
     var body: some View {
         ZStack {
-            // Background gradient
+            Color.red.ignoresSafeArea()
             LinearGradient(colors: [Color(.systemGray6), .white],
                            startPoint: .topLeading,
                            endPoint: .bottomTrailing)
                 .ignoresSafeArea()
 
             VStack(spacing: 20) {
-                // Header
                 Text("Memory Capsule")
                     .font(.title3)
                     .fontWeight(.semibold)
                     .foregroundColor(.blue)
 
-                // Video player with rounded corners
-                ZStack(alignment: .bottomTrailing) {
-                    VideoPlayer(player: player)
-                        .clipShape(RoundedRectangle(cornerRadius: 20))
-                        .shadow(radius: 10)
-                        .padding(.horizontal)
-                        .onAppear {
-                            player.replaceCurrentItem(with: AVPlayerItem(url: url))
-                            player.play()
-                            isPlaying = true
-                        }
-                        .onTapGesture { togglePlayback() }
-                        .overlay(overlayIcon)
+                // Video player container
+                ZStack {
+                    if let player = player {
+                        VideoPlayer(player: player)
+                            .frame(height: 500)  // Explicit height
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                            .shadow(radius: 10)
+                            .padding(.horizontal)
+                            .background(Color.black)  // Add black background to see frame
+                            .onTapGesture {
+                                print("🎬 Video tapped")
+                                togglePlayback()
+                            }
+                            .overlay(
+                                Text("Status: \(playerStatus)")
+                                    .foregroundColor(.white)
+                                    .padding(8)
+                                    .background(Color.black.opacity(0.7))
+                                    .cornerRadius(8)
+                                    .padding(8),
+                                alignment: .topLeading
+                            )
+                    } else {
+                        RoundedRectangle(cornerRadius: 20)
+                            .fill(Color.gray.opacity(0.3))
+                            .frame(height: 500)
+                            .overlay(
+                                VStack {
+                                    ProgressView()
+                                    Text("Loading player...")
+                                        .padding(.top, 8)
+                                }
+                            )
+                            .padding(.horizontal)
+                    }
                 }
 
-                // Footer
                 Text("Relive your favorite memories!")
                     .font(.footnote)
                     .foregroundColor(.secondary)
 
-                // --- NEW: Capsule Details Card ---
                 if let capsuleTitle = capsuleTitle {
                     VStack(alignment: .leading, spacing: 8) {
                         Text(capsuleTitle)
@@ -83,52 +98,76 @@ struct VideoPlayerView: View {
                     .shadow(radius: 4)
                     .padding(.horizontal)
                 }
+
+                Spacer()
             }
             .padding(.vertical, 20)
         }
         .navigationTitle("Your Capsule Video")
         .navigationBarTitleDisplayMode(.inline)
-        .animation(.easeInOut(duration: 0.25), value: showOverlay)
-    }
-
-    // MARK: - Overlay
-    @ViewBuilder
-    private var overlayIcon: some View {
-        if showOverlay {
-            Image(systemName: isPlaying ? "pause.circle.fill" : "play.circle.fill")
-                .font(.system(size: 70))
-                .foregroundColor(.white)
-                .shadow(radius: 8)
-                .transition(.scale)
+        .onAppear {
+            setupPlayer()
+        }
+        .onDisappear {
+            print("🛑 VideoPlayerView disappearing - cleaning up")
+            player?.pause()
+            player = nil
         }
     }
 
-    // MARK: - Toggle Playback
+    private func setupPlayer() {
+        print("🎬 Setting up player with URL: \(url)")
+        print("🎬 URL absoluteString: \(url.absoluteString)")
+        
+        let playerItem = AVPlayerItem(url: url)
+        let newPlayer = AVPlayer(playerItem: playerItem)
+        
+        // Observe player status
+        playerItem.publisher(for: \.status)
+            .sink { status in
+                DispatchQueue.main.async {
+                    switch status {
+                    case .readyToPlay:
+                        print("✅ AVPlayerItem is ready to play")
+                        playerStatus = "Ready to play"
+                    case .failed:
+                        if let error = playerItem.error {
+                            print("❌ AVPlayerItem failed: \(error.localizedDescription)")
+                            playerStatus = "Failed: \(error.localizedDescription)"
+                        }
+                    case .unknown:
+                        print("⏳ AVPlayerItem status unknown")
+                        playerStatus = "Loading..."
+                    @unknown default:
+                        print("❓ AVPlayerItem unknown status")
+                        playerStatus = "Unknown status"
+                    }
+                }
+            }
+            .store(in: &cancellables)
+        
+        self.player = newPlayer
+        
+        // Give it a moment to load, then play
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            print("▶️ Starting playback")
+            newPlayer.play()
+            isPlaying = true
+        }
+        
+        print("✅ Player setup complete")
+    }
+
     private func togglePlayback() {
+        guard let player = player else { return }
+        
         if isPlaying {
+            print("⏸️ Pausing")
             player.pause()
         } else {
+            print("▶️ Playing")
             player.play()
         }
         isPlaying.toggle()
-
-        // Show temporary overlay icon
-        withAnimation { showOverlay = true }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            withAnimation { showOverlay = false }
-        }
-    }
-}
-
-#Preview {
-    if let sampleURL = Bundle.main.url(forResource: "sample", withExtension: "mp4") {
-        VideoPlayerView(
-            url: sampleURL,
-            capsuleTitle: "Summer in Hong Kong ☀️",
-            capsuleDescription: "Weekend adventures, skyline views, and bubble tea memories.",
-            revealDate: Date()
-        )
-    } else {
-        Text("Preview not available (missing sample.mp4)")
     }
 }
