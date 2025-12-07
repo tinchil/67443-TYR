@@ -1,0 +1,29 @@
+{
+  "configurations" : [
+    {
+      "id" : "E571F061-A490-4A0E-B574-1EE91AA6DAEB",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:Saturdays.xcodeproj",
+      "identifier" : "A3A09B5A2E8B304200E822FE",
+      "name" : "Saturdays"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:Saturdays.xcodeproj",
+        "identifier" : "F41B70F12EC2AC8D005A4958",
+        "name" : "SaturdaysTests"
+      }
+    }
+  ],
+  "version" : 1
+}

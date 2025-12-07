@@ -18,12 +18,14 @@ struct PhotoEvent: Identifiable {
 }
 
 class EventClusterer {
-    static func cluster(photos: [PhotoItem],
-                        timeThreshold: TimeInterval = 6 * 3600,
-                        distanceThreshold: CLLocationDistance = 500) -> [PhotoEvent] {
+    static func cluster(
+        photos: [PhotoItem],
+        timeThreshold: TimeInterval = 6 * 3600,
+        distanceThreshold: CLLocationDistance = 500
+    ) -> [PhotoEvent] {
+
         guard !photos.isEmpty else { return [] }
 
-        // Sort by timestamp
         let sorted = photos.sorted { $0.timestamp < $1.timestamp }
         var events: [[PhotoItem]] = [[sorted[0]]]
 
@@ -33,10 +35,10 @@ class EventClusterer {
             let timeDiff = photo.timestamp.timeIntervalSince(last.timestamp)
             let distDiff = distanceBetween(photo.location, last.location)
 
-            if timeDiff > timeThreshold && distDiff > distanceThreshold {
+            // NEW LOGIC: split if EITHER exceeds threshold
+            if timeDiff > timeThreshold || distDiff > distanceThreshold {
                 events.append([photo])
             } else {
-                // continue current event
                 events[events.count - 1].append(photo)
             }
         }
@@ -46,7 +48,12 @@ class EventClusterer {
             let end = cluster.last!.timestamp
             let locs = cluster.compactMap { $0.location }
             let avgLoc = averageLocation(locs)
-            return PhotoEvent(photos: cluster, startDate: start, endDate: end, centerLocation: avgLoc)
+            return PhotoEvent(
+                photos: cluster,
+                startDate: start,
+                endDate: end,
+                centerLocation: avgLoc
+            )
         }
     }
 
@@ -62,3 +69,4 @@ class EventClusterer {
         return CLLocation(latitude: avgLat, longitude: avgLon)
     }
 }
+

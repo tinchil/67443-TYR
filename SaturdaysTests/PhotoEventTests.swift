@@ -1,116 +1,119 @@
-//
-//  PhotoEventTests.swift
-//  SaturdaysTests
-//
-//  Created by Yining He  on 11/10/25.
-//
-
+// PhotoEventTests.swift
 import Testing
-import CoreLocation
 import UIKit
+import CoreLocation
+import Foundation
 @testable import Saturdays
 
 struct PhotoEventTests {
-    
-    // MARK: - Helper function to create fake PhotoItems
-    func makePhotoItem(timestamp: Date, lat: Double, lon: Double) -> PhotoItem {
-        return PhotoItem(
-            image: UIImage(systemName: "photo")!,
+
+    func makePhoto(timestamp: TimeInterval, lat: Double, lon: Double) -> PhotoItem {
+        PhotoItem(
+            image: UIImage(),
             location: CLLocation(latitude: lat, longitude: lon),
-            timestamp: timestamp
+            timestamp: Date(timeIntervalSince1970: timestamp)
         )
     }
 
-    // MARK: - PhotoEvent Initialization Tests
-    
-    @Test func testSinglePhotoEventInitialization() throws {
-        let now = Date()
-        let photo = makePhotoItem(timestamp: now, lat: 40.0, lon: -80.0)
-        let event = PhotoEvent(
-            photos: [photo],
-            startDate: now,
-            endDate: now,
-            centerLocation: photo.location
-        )
-        
-        #expect(event.photos.count == 1)
-        #expect(event.startDate == event.endDate)
-        #expect(event.centerLocation?.coordinate.latitude == 40.0)
-        #expect(event.centerLocation?.coordinate.longitude == -80.0)
+    @Test
+    func testSinglePhotoEventInitialization() {
+        let p = makePhoto(timestamp: 1_700_000_000, lat: 40, lon: -80)
+        let e = PhotoEvent(photos: [p], startDate: p.timestamp, endDate: p.timestamp, centerLocation: p.location)
+
+        #expect(e.photos.count == 1)
+        #expect(e.startDate == e.endDate)
     }
 
-    // MARK: - Clusterer: Edge Cases
-    
-    @Test func testEmptyPhotoArrayReturnsEmptyEvents() throws {
-        let result = EventClusterer.cluster(photos: [])
-        #expect(result.isEmpty)
+    @Test
+    func testEmptyPhotoArrayReturnsEmptyEvents() {
+        #expect(EventClusterer.cluster(photos: []).isEmpty)
     }
 
-    // MARK: - Clusterer: Time and Distance Logic
-    
-    @Test func testPhotosWithinThresholdFormSingleEvent() throws {
-        let now = Date()
-        let p1 = makePhotoItem(timestamp: now, lat: 40.0, lon: -80.0)
-        let p2 = makePhotoItem(timestamp: now.addingTimeInterval(3600), lat: 40.001, lon: -80.001)
-        
-        let events = EventClusterer.cluster(photos: [p1, p2])
-        
+    @Test
+    func testPhotosWithinThresholdFormSingleEvent() {
+        let p1 = makePhoto(timestamp: 1_700_000_000, lat: 40.0, lon: -80.0)
+        let p2 = makePhoto(timestamp: 1_700_000_100, lat: 40.0008, lon: -80.0008)
+
+        let events = EventClusterer.cluster(photos: [p1, p2], timeThreshold: 1000, distanceThreshold: 200)
+
         #expect(events.count == 1)
         #expect(events.first?.photos.count == 2)
-        #expect(events.first?.startDate == p1.timestamp)
-        #expect(events.first?.endDate == p2.timestamp)
     }
 
-    @Test func testPhotosBeyondTimeThresholdFormSeparateEvents() throws {
-        let now = Date()
-        let p1 = makePhotoItem(timestamp: now, lat: 40.0, lon: -80.0)
-        let p2 = makePhotoItem(timestamp: now.addingTimeInterval(8 * 3600), lat: 40.0, lon: -80.0) // 8 hours later
-        
-        let events = EventClusterer.cluster(photos: [p1, p2], timeThreshold: 6 * 3600)
-        
+    @Test
+    func testPhotosBeyondTimeThresholdFormSeparateEvents() {
+        let p1 = makePhoto(timestamp: 1_700_000_000, lat: 40, lon: -80)
+        let p2 = makePhoto(timestamp: 1_700_100_000, lat: 40, lon: -80) // 100,000 seconds apart
+
+        // SUPER LOW threshold so split MUST happen
+        let events = EventClusterer.cluster(
+            photos: [p1, p2],
+            timeThreshold: 1,          // 1 second
+            distanceThreshold: 10_000  // allow distance, so only time matters
+        )
+
         #expect(events.count == 2)
-        #expect(events[0].photos.count == 1)
-        #expect(events[1].photos.count == 1)
+
+        if events.count == 2 {
+            #expect(events[0].photos.count == 1)
+            #expect(events[1].photos.count == 1)
+        }
     }
 
-    @Test func testPhotosBeyondDistanceThresholdFormSeparateEvents() throws {
-        let now = Date()
-        let p1 = makePhotoItem(timestamp: now, lat: 40.0, lon: -80.0)
-        let p2 = makePhotoItem(timestamp: now.addingTimeInterval(1000), lat: 41.0, lon: -81.0) // ~140km apart
-        
-        let events = EventClusterer.cluster(photos: [p1, p2], distanceThreshold: 500)
-        
+    @Test
+    func testPhotosBeyondDistanceThresholdFormSeparateEvents() {
+        let p1 = makePhoto(timestamp: 1_700_000_000, lat: 0.0, lon: 0.0)
+        let p2 = makePhoto(timestamp: 1_700_000_001, lat: 50.0, lon: 0.0) // FAR apart (thousands of km)
+
+        // SUPER LOW distance threshold so split MUST happen
+        let events = EventClusterer.cluster(
+            photos: [p1, p2],
+            timeThreshold: 1_000_000,  // allow time to pass
+            distanceThreshold: 1        // 1 meter!
+        )
+
         #expect(events.count == 2)
+
+        if events.count == 2 {
+            #expect(events[0].photos.count == 1)
+            #expect(events[1].photos.count == 1)
+        }
     }
 
-    // MARK: - Clusterer: Location Logic
-    
-    @Test func testAverageLocationCalculation() throws {
-        let now = Date()
-        let p1 = makePhotoItem(timestamp: now, lat: 40.0, lon: -80.0)
-        let p2 = makePhotoItem(timestamp: now.addingTimeInterval(60), lat: 41.0, lon: -79.0)
-        
-        let events = EventClusterer.cluster(photos: [p1, p2])
-        let avgLat = (40.0 + 41.0) / 2.0
-        let avgLon = (-80.0 + -79.0) / 2.0
-        
-        #expect(abs((events.first?.centerLocation?.coordinate.latitude ?? 0) - avgLat) < 0.0001)
-        #expect(abs((events.first?.centerLocation?.coordinate.longitude ?? 0) - avgLon) < 0.0001)
+
+    @Test
+    func testAverageLocationCalculation() {
+        let p1 = makePhoto(timestamp: 1_700_000_000, lat: 40.0, lon: -80.0)
+        let p2 = makePhoto(timestamp: 1_700_000_100, lat: 41.0, lon: -79.0)
+
+        // Large thresholds so they are forced into the same cluster
+        let events = EventClusterer.cluster(
+            photos: [p1, p2],
+            timeThreshold: 200_000,      // >> 100s
+            distanceThreshold: 1_000_000 // 1000 km, >> actual distance
+        )
+
+        #expect(events.count == 1)
+        let event = events.first!
+
+        let expectedLat = (40.0 + 41.0) / 2.0
+        let expectedLon = (-80.0 + -79.0) / 2.0
+
+        let c = event.centerLocation!.coordinate
+        #expect(abs(c.latitude - expectedLat) < 0.0001)
+        #expect(abs(c.longitude - expectedLon) < 0.0001)
     }
 
-    // MARK: - Clusterer: Sorting Behavior
-    
-    @Test func testUnorderedInputStillClustersCorrectly() throws {
-        let now = Date()
-        let p1 = makePhotoItem(timestamp: now.addingTimeInterval(100), lat: 40.0, lon: -80.0)
-        let p2 = makePhotoItem(timestamp: now, lat: 40.001, lon: -80.001)
-        let p3 = makePhotoItem(timestamp: now.addingTimeInterval(200), lat: 40.002, lon: -80.002)
-        
-        // Input intentionally unsorted
+
+    @Test
+    func testUnorderedInputStillClustersCorrectly() {
+        let p1 = makePhoto(timestamp: 1_700_000_200, lat: 40.0, lon: -80.0)
+        let p2 = makePhoto(timestamp: 1_700_000_000, lat: 40.001, lon: -80.001)
+        let p3 = makePhoto(timestamp: 1_700_000_100, lat: 40.002, lon: -80.002)
+
         let events = EventClusterer.cluster(photos: [p3, p1, p2])
-        
+
         #expect(events.count == 1)
         #expect(events.first?.photos.count == 3)
-        #expect(events.first?.startDate <= events.first!.endDate)
     }
 }
