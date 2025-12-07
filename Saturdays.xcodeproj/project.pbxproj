@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		A3ED5A0F2EE5C8AD000D8B4C /* ViewInspector in Frameworks */ = {isa = PBXBuildFile; productRef = A3ED5A0E2EE5C8AD000D8B4C /* ViewInspector */; };
+		A3080F702EE5CA7400D38104 /* ViewInspector in Frameworks */ = {isa = PBXBuildFile; productRef = A3080F6F2EE5CA7400D38104 /* ViewInspector */; };
 		F46492D02EE020B800DEBA43 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = F46492CF2EE020B800DEBA43 /* FirebaseAnalytics */; };
 		F46492D22EE020B800DEBA43 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F46492D12EE020B800DEBA43 /* FirebaseAuth */; };
 		F50B96A62EE3C5C5009F4C63 /* AWSCore in Frameworks */ = {isa = PBXBuildFile; productRef = F50B96A52EE3C5C5009F4C63 /* AWSCore */; };
@@ -70,7 +70,6 @@
 				F46492D02EE020B800DEBA43 /* FirebaseAnalytics in Frameworks */,
 				F549180D2EAEE3640063DD60 /* FirebaseStorage in Frameworks */,
 				F50B96A82EE3C5C5009F4C63 /* AWSS3 in Frameworks */,
-				A3ED5A0F2EE5C8AD000D8B4C /* ViewInspector in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +77,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3080F702EE5CA7400D38104 /* ViewInspector in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -160,7 +160,6 @@
 				F46492D12EE020B800DEBA43 /* FirebaseAuth */,
 				F50B96A52EE3C5C5009F4C63 /* AWSCore */,
 				F50B96A72EE3C5C5009F4C63 /* AWSS3 */,
-				A3ED5A0E2EE5C8AD000D8B4C /* ViewInspector */,
 			);
 			productName = Saturdays;
 			productReference = A3A09B5B2E8B304200E822FE /* Saturdays.app */;
@@ -272,7 +271,7 @@
 				F54918072EAEE3640063DD60 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				F54918592EAF08000063DD60 /* XCRemoteSwiftPackageReference "sdk-for-apple" */,
 				F50B96A42EE3C5C5009F4C63 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */,
-				A3ED5A0D2EE5C860000D8B4C /* XCRemoteSwiftPackageReference "ViewInspector" */,
+				A3080F6E2EE5CA5600D38104 /* XCRemoteSwiftPackageReference "ViewInspector" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A3A09B5C2E8B304200E822FE /* Products */;
@@ -776,7 +775,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		A3ED5A0D2EE5C860000D8B4C /* XCRemoteSwiftPackageReference "ViewInspector" */ = {
+		A3080F6E2EE5CA5600D38104 /* XCRemoteSwiftPackageReference "ViewInspector" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/nalexn/ViewInspector";
 			requirement = {
@@ -811,9 +810,9 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		A3ED5A0E2EE5C8AD000D8B4C /* ViewInspector */ = {
+		A3080F6F2EE5CA7400D38104 /* ViewInspector */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = A3ED5A0D2EE5C860000D8B4C /* XCRemoteSwiftPackageReference "ViewInspector" */;
+			package = A3080F6E2EE5CA5600D38104 /* XCRemoteSwiftPackageReference "ViewInspector" */;
 			productName = ViewInspector;
 		};
 		F46492CF2EE020B800DEBA43 /* FirebaseAnalytics */ = {
