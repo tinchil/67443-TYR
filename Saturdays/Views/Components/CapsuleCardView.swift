@@ -17,15 +17,34 @@ struct CapsuleCardView: View {
                 .frame(width: 240, height: 200)
                 .shadow(radius: 6)
                 .overlay(
-                    capsule.coverPhoto.map { img in
-                        Image(uiImage: img)
-                            .resizable()
-                            .scaledToFill()
+                    Group {
+                        if let coverPhotoURL = capsule.coverPhotoURL {
+                            AsyncImage(url: URL(string: coverPhotoURL)) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            } placeholder: {
+                                ProgressView()
+                            }
                             .frame(width: 240, height: 200)
                             .clipShape(RoundedRectangle(cornerRadius: 20))
+                        } else if let firstMediaURL = capsule.mediaURLs.first {
+                            // Use first media as fallback
+                            AsyncImage(url: URL(string: firstMediaURL)) { image in
+                                image
+                                    .resizable()
+                                    .scaledToFill()
+                            } placeholder: {
+                                ProgressView()
+                            }
+                            .frame(width: 240, height: 200)
+                            .clipShape(RoundedRectangle(cornerRadius: 20))
+                        } else {
+                            Color.gray.opacity(0.2)
+                        }
                     }
                 )
-            
+
             Text(capsule.name.isEmpty ? "Untitled Capsule" : capsule.name)
                 .font(.headline)
         }

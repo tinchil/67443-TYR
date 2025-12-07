@@ -5,9 +5,9 @@
 //  Created by Yining He  on 12/3/25.
 //
 
-@preconcurrency import Foundation
+import Foundation
 
-struct UserModel: Identifiable, Codable, Sendable {
+struct UserModel: Identifiable, Codable {
     var id: String                  // Firebase UID
     var username: String            // @username
     var displayName: String         // Pretty name to show in UI

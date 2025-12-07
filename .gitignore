@@ -1,0 +1,19 @@
+# AWS Credentials - NEVER COMMIT!
+Saturdays/Config/AWSConfig.swift
+
+# Xcode
+*.xcuserstate
+*.xcworkspace
+xcuserdata/
+DerivedData/
+
+# CocoaPods
+Pods/
+Podfile.lock
+
+# Swift Package Manager
+.swiftpm/
+.build/
+
+# Other
+.DS_Store

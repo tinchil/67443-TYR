@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		F46492D02EE020B800DEBA43 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = F46492CF2EE020B800DEBA43 /* FirebaseAnalytics */; };
 		F46492D22EE020B800DEBA43 /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = F46492D12EE020B800DEBA43 /* FirebaseAuth */; };
+		F50B96A62EE3C5C5009F4C63 /* AWSCore in Frameworks */ = {isa = PBXBuildFile; productRef = F50B96A52EE3C5C5009F4C63 /* AWSCore */; };
+		F50B96A82EE3C5C5009F4C63 /* AWSS3 in Frameworks */ = {isa = PBXBuildFile; productRef = F50B96A72EE3C5C5009F4C63 /* AWSS3 */; };
 		F54918092EAEE3640063DD60 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = F54918082EAEE3640063DD60 /* FirebaseCore */; };
 		F549180B2EAEE3640063DD60 /* FirebaseFirestore in Frameworks */ = {isa = PBXBuildFile; productRef = F549180A2EAEE3640063DD60 /* FirebaseFirestore */; };
 		F549180D2EAEE3640063DD60 /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = F549180C2EAEE3640063DD60 /* FirebaseStorage */; };
@@ -60,11 +62,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F50B96A62EE3C5C5009F4C63 /* AWSCore in Frameworks */,
 				F54918092EAEE3640063DD60 /* FirebaseCore in Frameworks */,
 				F46492D22EE020B800DEBA43 /* FirebaseAuth in Frameworks */,
 				F549180B2EAEE3640063DD60 /* FirebaseFirestore in Frameworks */,
 				F46492D02EE020B800DEBA43 /* FirebaseAnalytics in Frameworks */,
 				F549180D2EAEE3640063DD60 /* FirebaseStorage in Frameworks */,
+				F50B96A82EE3C5C5009F4C63 /* AWSS3 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -152,6 +156,8 @@
 				F549180C2EAEE3640063DD60 /* FirebaseStorage */,
 				F46492CF2EE020B800DEBA43 /* FirebaseAnalytics */,
 				F46492D12EE020B800DEBA43 /* FirebaseAuth */,
+				F50B96A52EE3C5C5009F4C63 /* AWSCore */,
+				F50B96A72EE3C5C5009F4C63 /* AWSS3 */,
 			);
 			productName = Saturdays;
 			productReference = A3A09B5B2E8B304200E822FE /* Saturdays.app */;
@@ -174,8 +180,6 @@
 				F41B70F32EC2AC8D005A4958 /* SaturdaysTests */,
 			);
 			name = SaturdaysTests;
-			packageProductDependencies = (
-			);
 			productName = SaturdaysTests;
 			productReference = F41B70F22EC2AC8D005A4958 /* SaturdaysTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -264,6 +268,7 @@
 			packageReferences = (
 				F54918072EAEE3640063DD60 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 				F54918592EAF08000063DD60 /* XCRemoteSwiftPackageReference "sdk-for-apple" */,
+				F50B96A42EE3C5C5009F4C63 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A3A09B5C2E8B304200E822FE /* Products */;
@@ -657,6 +662,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -689,6 +695,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -765,6 +772,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		F50B96A42EE3C5C5009F4C63 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/aws-amplify/aws-sdk-ios-spm";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.41.0;
+			};
+		};
 		F54918072EAEE3640063DD60 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
@@ -793,6 +808,16 @@
 			isa = XCSwiftPackageProductDependency;
 			package = F54918072EAEE3640063DD60 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
 			productName = FirebaseAuth;
+		};
+		F50B96A52EE3C5C5009F4C63 /* AWSCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F50B96A42EE3C5C5009F4C63 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
+			productName = AWSCore;
+		};
+		F50B96A72EE3C5C5009F4C63 /* AWSS3 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = F50B96A42EE3C5C5009F4C63 /* XCRemoteSwiftPackageReference "aws-sdk-ios-spm" */;
+			productName = AWSS3;
 		};
 		F54918082EAEE3640063DD60 /* FirebaseCore */ = {
 			isa = XCSwiftPackageProductDependency;
