@@ -4,6 +4,10 @@ AWSConfig.swift
 */AWSConfig.swift
 **/AWSConfig.swift
 
+AWSConfig.secrets.swift
+*/AWSConfig.secrets.swift
+**/AWSConfig.secrets.swift
+
 
 # Xcode
 *.xcuserstate
