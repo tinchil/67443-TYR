@@ -1,16 +1,9 @@
 //
 //  CapsuleModelTests.swift
-//  Saturdays
-//
-//  Created by Rosemary Yang on 12/5/25.
-//
-
-
-//  CapsuleModelTests.swift
 //  SaturdaysTests
+//
 
 import Testing
-import UIKit
 @testable import Saturdays
 
 struct CapsuleModelTests {
@@ -19,12 +12,16 @@ struct CapsuleModelTests {
     func testCapsuleModelInitializationWithDefaults() {
         let capsule = CapsuleModel(type: .memory)
 
+        // Default values
         #expect(capsule.name == "")
         #expect(capsule.type == .memory)
-        #expect(capsule.groupID == nil)
+        #expect(capsule.groupID == "")        // ⬅️ your model uses empty string, not nil
+        #expect(capsule.mediaURLs.isEmpty)
+        #expect(capsule.coverPhotoURL == nil)
+        #expect(capsule.finalVideoURL == nil)
 
-        // Only check that an ID exists – not its value
-        #expect(!capsule.id.uuidString.isEmpty)
+        // ID is a UUID string
+        #expect(!capsule.id.isEmpty)
     }
 
     @Test
@@ -33,7 +30,7 @@ struct CapsuleModelTests {
             name: "Beach Day",
             type: .letter,
             groupID: "group-1",
-            coverPhoto: nil
+            coverPhotoURL: nil
         )
 
         #expect(capsule.name == "Beach Day")
@@ -51,9 +48,6 @@ struct CapsuleModelTests {
 
     @Test
     func testCapsuleTypeEnumValues() {
-        let memory = CapsuleType.memory
-        let letter = CapsuleType.letter
-
-        #expect(memory != letter)
+        #expect(CapsuleType.memory != CapsuleType.letter)
     }
 }
