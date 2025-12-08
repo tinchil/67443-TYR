@@ -111,11 +111,23 @@ private extension HomePageView {
 
             Spacer()
 
+            // Timeline button
+            NavigationLink {
+                MemoryTimelineView()
+            } label: {
+                Image(systemName: "clock.arrow.circlepath")
+                    .font(.title2)
+                    .foregroundColor(Color(red: 0/255, green: 0/255, blue: 142/255))
+            }
+            .padding(.trailing, 8)
+
+            // Friends button
             NavigationLink {
                 FriendsView()
             } label: {
                 Image(systemName: "person.3.fill")
                     .font(.title2)
+                    .foregroundColor(Color(red: 0/255, green: 0/255, blue: 142/255))
             }
         }
         .padding(.horizontal)
