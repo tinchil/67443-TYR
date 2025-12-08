@@ -4,6 +4,7 @@
 //
 
 import SwiftUI
+import Combine
 
 struct RevealSettingsView: View {
     @ObservedObject var capsuleVM: CapsuleDetailsViewModel
