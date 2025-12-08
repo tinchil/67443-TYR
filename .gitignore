@@ -8,6 +8,12 @@ AWSConfig.secrets.swift
 */AWSConfig.secrets.swift
 **/AWSConfig.secrets.swift
 
+# Secrets
+Saturdays/Config/Secrets.plist
+Secrets.plist
+*/Secrets.plist
+**/Secrets.plist
+
 
 # Xcode
 *.xcuserstate
