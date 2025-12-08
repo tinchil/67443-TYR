@@ -10,6 +10,9 @@ import PhotosUI
 
 struct AddPhotosView: View {
     @ObservedObject var capsuleVM: CapsuleDetailsViewModel
+    var existingCapsule: CapsuleModel? = nil  // If provided, we're adding to an existing capsule
+    var onPhotosAdded: (([String]) -> Void)? = nil  // Callback when photos are added to existing capsule
+
     @State private var selectedPhotos: [PhotosPickerItem] = []
     @State private var loadedImages: [UIImage] = []
     @State private var showingPhotoPicker = false
@@ -19,6 +22,10 @@ struct AddPhotosView: View {
 
     private let storageService = StorageService()
     private let capsuleService = CapsuleService()
+
+    private var isAddingToExisting: Bool {
+        existingCapsule != nil
+    }
 
     let columns = [
         GridItem(.flexible()),
@@ -30,14 +37,16 @@ struct AddPhotosView: View {
         VStack(alignment: .leading, spacing: 20) {
 
             // MARK: - HEADER
-            Text("ADD PHOTOS")
+            Text(isAddingToExisting ? "ADD MORE PHOTOS" : "ADD PHOTOS")
                 .font(.system(size: 28, weight: .bold))
                 .foregroundColor(Color(red: 0/255, green: 0/255, blue: 142/255))
                 .padding(.horizontal)
                 .padding(.top, 20)
 
             // MARK: - DESCRIPTION
-            Text("Choose the photos you want to add to your capsule.")
+            Text(isAddingToExisting
+                ? "Choose additional photos to add to this capsule."
+                : "Choose the photos you want to add to your capsule.")
                 .font(.system(size: 16))
                 .foregroundColor(Color(red: 0/255, green: 0/255, blue: 142/255))
                 .padding(.horizontal)
@@ -122,15 +131,52 @@ struct AddPhotosView: View {
         }
     }
 
-    // MARK: - Create Capsule
+    // MARK: - Create Capsule OR Add Photos to Existing
     func createCapsule() {
         guard !loadedImages.isEmpty else { return }
-        guard let groupID = capsuleVM.selectedGroupID else {
-            print("❌ No group selected")
+
+        isUploading = true
+
+        // If adding to existing capsule, skip creation step
+        if let existing = existingCapsule {
+            print("📸 Adding \(loadedImages.count) photos to existing capsule: \(existing.id)")
+
+            // Upload images to S3
+            storageService.uploadImages(loadedImages, capsuleID: existing.id) { uploadedURLs in
+                guard !uploadedURLs.isEmpty else {
+                    print("❌ No images uploaded successfully")
+                    isUploading = false
+                    return
+                }
+
+                // Combine with existing media URLs
+                let updatedURLs = existing.mediaURLs + uploadedURLs
+
+                // Update capsule with combined media URLs
+                capsuleService.updateCapsuleMedia(capsuleID: existing.id, mediaURLs: updatedURLs) { success in
+                    isUploading = false
+
+                    if success {
+                        print("✅ Added \(uploadedURLs.count) new photos to capsule")
+
+                        // Call the callback to notify parent view
+                        onPhotosAdded?(updatedURLs)
+
+                        dismiss()
+                    } else {
+                        print("❌ Failed to update capsule media")
+                    }
+                }
+            }
             return
         }
 
-        isUploading = true
+        // Otherwise, create new capsule
+        guard let groupID = capsuleVM.selectedGroupID else {
+            print("❌ No group selected")
+            isUploading = false
+            return
+        }
 
         // First, create the capsule in Firestore (without media URLs yet)
         capsuleService.createCapsule(

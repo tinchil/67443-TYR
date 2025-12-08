@@ -190,6 +190,27 @@ struct CapsuleDetailView: View {
                 }
             }
             .padding(.horizontal)
+
+            // Add Photos Button
+            NavigationLink(destination: AddPhotosView(
+                capsuleVM: CapsuleDetailsViewModel(capsule: capsule),
+                existingCapsule: capsule,
+                onPhotosAdded: { updatedURLs in
+                    capsule.mediaURLs = updatedURLs
+                    currentMediaURLs = updatedURLs
+                }
+            )) {
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                    Text("Add Photos")
+                }
+                .foregroundColor(.indigo)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.indigo.opacity(0.1))
+                .cornerRadius(12)
+            }
+            .padding(.horizontal)
         }
     }
 
