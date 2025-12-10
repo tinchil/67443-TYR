@@ -7,12 +7,28 @@
 
 import SwiftUI
 
+// MARK: - Protocol for Testing
+protocol TimelineServiceProtocol {
+    func fetchUserTimeline(completion: @escaping ([TimelineEvent]) -> Void)
+}
+
+// Make your real service conform without changing it
+extension TimelineService: TimelineServiceProtocol {}
+
 struct MemoryTimelineView: View {
+
+    // MARK: - State
     @State private var timelineEvents: [TimelineEvent] = []
     @State private var isLoading = true
     @Environment(\.dismiss) private var dismiss
 
-    private let timelineService = TimelineService()
+    // MARK: - Testable, dependency-injected service
+    private let timelineService: TimelineServiceProtocol
+
+    // Default initializer for real app usage
+    init(timelineService: TimelineServiceProtocol = TimelineService()) {
+        self.timelineService = timelineService
+    }
 
     var body: some View {
         NavigationStack {
@@ -33,6 +49,7 @@ struct MemoryTimelineView: View {
                 } else {
                     ScrollView {
                         VStack(spacing: 0) {
+
                             // Header
                             VStack(spacing: 8) {
                                 Text("Your Journey")
@@ -46,7 +63,7 @@ struct MemoryTimelineView: View {
                             .padding(.top, 20)
                             .padding(.bottom, 30)
 
-                            // Timeline
+                            // Timeline rows
                             ForEach(Array(timelineEvents.enumerated()), id: \.element.id) { index, event in
                                 TimelineEventRow(
                                     event: event,
@@ -80,6 +97,7 @@ struct MemoryTimelineView: View {
         }
     }
 
+    // MARK: - Empty State
     private var emptyStateView: some View {
         VStack(spacing: 16) {
             Image(systemName: "clock.arrow.circlepath")
@@ -98,6 +116,7 @@ struct MemoryTimelineView: View {
         }
     }
 
+    // MARK: - Load Timeline
     private func loadTimeline() {
         isLoading = true
         timelineService.fetchUserTimeline { events in
@@ -109,7 +128,7 @@ struct MemoryTimelineView: View {
     }
 }
 
-// MARK: - Timeline Event Row
+// MARK: - Timeline Event Row (unchanged)
 struct TimelineEventRow: View {
     let event: TimelineEvent
     let isFirst: Bool
