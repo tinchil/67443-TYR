@@ -35,9 +35,12 @@ struct VideoPlayerView: View {
             VStack {
                 ZStack {
                     if let player = player {
-                        VideoPlayer(player: player)
-                            .onTapGesture { togglePlayback() }
-                            .overlay(Text("Status: \(playerStatus)"))
+                        ZStack {                               // WRAPPER ZSTACK
+                            VideoPlayer(player: player)
+                                .overlay(Text("Status: \(playerStatus)"))
+                        }
+                        .contentShape(Rectangle())
+                        .onTapGesture { togglePlayback() }     // NOW INSPECTABLE
                     } else {
                         ProgressView()
                         Text("Loading player...")
