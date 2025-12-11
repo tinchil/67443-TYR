@@ -32,6 +32,20 @@ Users upload photos into shared capsules that unlock on a future date, turning e
 - **AI-Generated Unlock Videos** when capsules open
 - **Smart Discovery** of hidden memories through ML clustering and historical timelines
 
+### Note on Video Playback (Simulator vs Physical Device)
+
+During development, we discovered that **video playback behaves differently on the Simulator compared to a real iPhone**.
+
+- The Simulator uses macOS video codecs  
+- A physical iPhone uses iOS hardware decoders  
+
+If the uploaded S3 video is encoded with a codec or container not supported by iOS hardware (e.g., certain H.264 profiles, missing audio tracks, incorrect MIME types), the **Simulator will still play the video**, but a **real iPhone will freeze** or fail to start playback.
+
+This is a known AVFoundation behavior.
+
+Our AI-generated video pipeline works on the Simulator but may not always match iOS hardware playback requirements, leading to this discrepancy on physical devices.
+
+
 ---
 
 # Market Niche & Mobile Mental Model
