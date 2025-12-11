@@ -154,7 +154,12 @@ final class PhotoLibraryIngestionService {
         // ---------------------------------------------------
         // ⭐ NEW: Generate Vision face embedding for clustering
         // ---------------------------------------------------
-        let embedding = await FaceEmbeddingService.shared.embedding(for: thumbnail)
+        // 1. Extract face IDs from the image (convert UIImage → fake PHAsset wrapper)
+        let faceIDs = await FaceEmbeddingService.shared.getFaceIdentifiers(for: asset) ?? []
+
+        // 2. Convert face IDs → 128-dim embedding
+        let embedding = FaceEmbeddingService.shared.generateEmbeddingFromFaceIDs(faceIDs)
+
 
         return PhotoMetadataCacheEntry(
             id: asset.localIdentifier,
