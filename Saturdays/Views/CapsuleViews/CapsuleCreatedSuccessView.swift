@@ -34,7 +34,7 @@ struct CapsuleCreatedSuccessView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .background(Color.white)
-        .navigationBarBackButtonHidden(true)
+//        .navigationBarBackButtonHidden(true)
         .onAppear {
             // Auto-dismiss after 2 seconds and go back to home
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
