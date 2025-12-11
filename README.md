@@ -1,140 +1,187 @@
-# Saturdays
-
+# Saturdays  
 **Capture today. Relive it together.**
 
-A memory capsule app that lets you save moments now and relive them in the future with the people who matter.
+A mobile-first memory capsule app that lets you save moments now and relive them in the future with the people who matter.
 
 ---
 
-## Table of Contents
-
+# Table of Contents
 - [Overview](#overview)
+- [Market Niche & Mobile Mental Model](#market-niche--mobile-mental-model)
 - [Key Features](#key-features)
 - [Architecture](#architecture)
 - [Test Coverage](#test-coverage)
-- [Setup Instructions](#setup-instructions)
+- [Running the App (TA Instructions)](#running-the-app-ta-instructions)
 - [Technologies Used](#technologies-used)
-- [Project Structure](#project-structure)
+- [Sprint Development Timeline](#sprint-development-timeline)
+- [Troubleshooting](#troubleshooting)
+- [License](#license)
 
 ---
 
-## Overview
+# Overview
 
-Saturdays is an iOS social memory-sharing application that enables users to create collaborative "memory capsules" with friends and family. Unlike traditional photo-sharing apps, Saturdays focuses on the future - users upload photos and memories to capsules that unlock on specific dates, creating anticipation and meaningful moments when memories are revealed.
+Saturdays is an iOS social memory-sharing application that enables users to create collaborative memory capsules with friends and family. Unlike traditional photo apps that focus on immediate posting, Saturdays focuses on memory over time.
+
+Users upload photos into shared capsules that unlock on a future date, turning everyday memories into meaningful, anticipated group events. When a capsule unlocks, Saturdays automatically generates an AI-curated video story for the entire group to experience together.
 
 ### Core Concept
-
-- **Create Memory Capsules**: Users form groups with friends and create themed capsules (trips, events, life milestones)
-- **Collaborative Contributions**: Group members upload photos and reflections throughout an experience
-- **Time-Locked Content**: Capsules remain locked until a chosen reveal date or until all participants contribute
-- **AI-Generated Videos**: Upon unlock, all shared memories are automatically compiled into a curated video story
-- **Smart Discovery**: AI-powered features like "On This Day" and automatic event clustering help surface forgotten memories
+- **Create Memory Capsules** for trips, events, milestones
+- **Collaborative Contributions** within each group
+- **Time-Locked Content** until a set reveal date or until contributions are complete
+- **AI-Generated Unlock Videos** when capsules open
+- **Smart Discovery** of hidden memories through ML clustering and historical timelines
 
 ---
 
-## Key Features
+# Market Niche & Mobile Mental Model
+
+## Identifiable Market Niche
+
+Saturdays serves a well-defined, underserved niche:
+
+### **Private, collaborative, time-locked memory spaces.**
+Unlike Instagram, TikTok, or Google Photos, Saturdays is designed for:
+- Close friend groups  
+- Families  
+- Couples  
+- Private, emotional memory-sharing  
+- Long-term anticipation and shared nostalgia  
+
+It sits at the intersection of:
+- **BeReal** → authenticity  
+- **1 Second Everyday** → memory  
+- **Google Photos** → archival  
+
+But uniquely combines:
+1. **Collaboration**  
+2. **Time-locking**  
+3. **AI unlock videos**  
+4. **Event detection & smart clustering**
+
+This is a concrete target market underserved by existing products.
+
+---
+
+## How Saturdays Leverages the Mobile Platform
+
+Saturdays is deeply mobile-native and relies on device capabilities:
+
+### 1. Photos + Camera Integration
+Direct ingestion from the user's photo library enables:
+- metadata extraction  
+- event clustering  
+- face recognition  
+- video creation  
+
+### 2. Core ML & Vision
+Runs **on-device ML models**:
+- K-Means/DBSCAN event clustering  
+- MobileFaceNet face embeddings  
+- People grouping  
+
+### 3. Location Services
+Uses GPS metadata from photos to improve event grouping.
+
+### 4. Push Notifications
+Critical for:
+- reveal-day alerts  
+- group contribution updates  
+
+### 5. Touch + Gestural UI
+SwiftUI card-based interaction aligns with mobile-first mental models.
+
+### 6. Background Execution
+Gallery crawl scans user photos over time, something only mobile can provide.
+
+Saturdays is designed to *feel native* to the mobile ecosystem.
+
+---
+
+# Key Features
 
 ### 1. Group Capsule Creation
-- Create shared memory spaces with friends and family
-- Set custom capsule names and themes
-- Define group membership and permissions
-- **Implementation**: `GroupsService.swift`, `ChooseGroupView.swift`, `GroupCreatedSuccessView.swift`
+- Create capsules for trips, events, and milestones  
+- Add members with permissions  
+- Custom themes and naming  
+**Files:** `GroupsService.swift`, `ChooseGroupView.swift`, `GroupCreatedSuccessView.swift`
 
 ### 2. Time-Locked Reveals
-- Set future unlock dates for capsules
-- Hidden content remains locked until the chosen date
-- Option to require minimum contributions from all participants before unlock
-- **Implementation**: `CapsuleModel.swift`, `RevealSettingsView.swift`, `ContributionRequirementsView.swift`
+- Capsules remain locked until future date  
+- Optional minimum contribution requirement  
+**Files:** `CapsuleModel.swift`, `RevealSettingsView.swift`
 
 ### 3. Unlock Day Experience
-- Capsules transform into curated video compilations on unlock day
-- AI-powered video generation from all shared photos
-- Notification system alerts group members when capsules unlock
-- **Implementation**: `VideoCreator.swift`, `VideoPlayerView.swift`, `CapsuleDetailView.swift`
+- AI-curated memory video generated on unlock  
+- Group notification system  
+**Files:** `VideoCreator.swift`, `VideoPlayerView.swift`
 
-### 4. Gallery Crawl (Auto Photo Ingestion)
-- Automatic scanning of user's entire photo library
-- Background photo ingestion with permission
-- Smart detection of new events and memories
-- **Implementation**: `PhotoLibraryIngestionService.swift`, `PhotoMetadataExtractor.swift`
+### 4. Gallery Crawl (Auto Ingestion)
+- Background scanning of entire photo library  
+- Detects new events automatically  
+**Files:** `PhotoLibraryIngestionService.swift`
 
-### 5. AI-Powered Event Clustering
-- Core ML-based unsupervised model (K-Means/DBSCAN) trained on photo metadata
-- Automatically groups photos by time, location, and context into events
-- Dynamic event detection without hardcoded rules
-- **Implementation**: `EventCluster.swift`, `PhotoEvent.swift`
+### 5. AI Event Clustering
+- K-Means / DBSCAN unsupervised clustering  
+- Groups photos by time, location, context  
+**Files:** `EventCluster.swift`, `PhotoEvent.swift`
 
 ### 6. Facial Recognition & People Grouping
-- MobileFaceNet integration for face detection
-- Group photos by people appearing together
-- Smart suggestions for capsule creation based on who appears in photos
-- **Implementation**: `FaceEmbeddingService.swift`, `FaceCluster.swift`
+- MobileFaceNet face embeddings  
+- Grouping based on co-occurrence  
+**Files:** `FaceEmbeddingService.swift`
 
-### 7. "On This Day" Albums
-- Automatically generated throwback albums based on historical timestamps
-- Daily surfacing of memories from past years
-- Displayed prominently on the Home tab
-- **Implementation**: `GeneratedCapsuleModel.swift`, `OnThisDayCapsulesSection.swift`
+### 7. “On This Day” Albums
+- Throwback collections based on historical timestamps  
+**Files:** `GeneratedCapsuleModel.swift`
 
 ### 8. Memory Mirror Dashboard (Insights)
-- Visual analytics showing event timelines
-- Photo count statistics over time
-- Social clustering insights (who you spend time with)
-- Activity trends across your capsules
-- **Implementation**: `MemoryTimelineView.swift`, `TimelineService.swift`, `HomeViewModel.swift`
+- Timelines, counts, trends, social clusters  
+**Files:** `MemoryTimelineView.swift`, `TimelineService.swift`
 
 ### 9. Collaborative Uploads & Push Notifications
-- Group members can upload to shared capsules
-- Push notifications when all contributions are ready
-- Real-time sync across all group members
-- **Implementation**: `CapsuleService.swift`, `AddPhotosView.swift`, Firebase Cloud Messaging
+- Real-time syncing via Firebase  
+- Push notifications via FCM  
 
 ### 10. Event Renaming & Editing UI
-- User-facing controls to rename, merge, or split event clusters
-- Editable labels with smart suggestions
-- Override AI clustering decisions when needed
-- **Implementation**: `CapsuleDetailsViewModel.swift`, `CapsuleDetailView.swift`
+- Merge / split clusters  
+- Editable labels  
+**Files:** `CapsuleDetailsViewModel.swift`
 
 ---
 
-## Architecture
+# Architecture (MVVM)
 
-### Design Pattern: MVVM (Model-View-ViewModel)
+### **Models**
+- Capsule, Group, User, PhotoEvent, GeneratedCapsule
 
-**Models** (`/Saturdays/Models/`)
-- `UserModel.swift` - User accounts and friend relationships
-- `CapsuleModel.swift` - Memory capsule containers with media and metadata
-- `GroupModel.swift` - Group definitions and membership
-- `PhotoItem.swift` - Individual photos with location/timestamp metadata
-- `PhotoEvent.swift` - AI-clustered photo events
-- `GeneratedCapsuleModel.swift` - AI-generated "On This Day" compilations
+### **ViewModels**
+- HomeViewModel  
+- CapsuleDetailsViewModel  
+- AuthViewModel  
+- GroupsViewModel  
 
-**ViewModels** (`/Saturdays/ViewModels/`)
-- `HomeViewModel.swift` - Home screen state management
-- `AuthViewModel.swift` - Authentication flow
-- `CapsuleDetailsViewModel.swift` - Capsule detail screen logic
-- `GroupsViewModel.swift` - Group management
-- `FriendsViewModel.swift` - Friend relationship handling
+### **Views**
+- MainTabView (navigation)
+- Capsule views  
+- Group creation views  
+- Timeline views  
+- Video playback  
 
-**Views** (`/Saturdays/Views/`)
-- **Navigation**: `MainTabView.swift` - Primary tab-based navigation
-- **CapsuleViews**: Capsule browsing, detail views, photo uploads
-- **GroupCreation**: Multi-step group creation flow
-- **AIGeneratedCapsules**: AI-generated capsule displays
-- **Friends**: Friend management UI
-- **Timeline**: Memory timeline visualization
-- **Videos**: Video playback for unlocked capsules
+### **Services**
+- Firebase Auth & Firestore  
+- AWS S3 media uploads  
+- Photo ingestion system  
+- ML clustering models  
+- Video creator pipeline  
 
-**Services** (`/Saturdays/Services/`)
-- `AuthService.swift` - Firebase Authentication
-- `CapsuleService.swift` - Capsule CRUD operations with Firestore
-- `GroupsService.swift` - Group creation and management
-- `FriendsService.swift` - Friend search and requests
-- `StorageService.swift` - AWS S3 image uploads
-- `VideoCreator.swift` - AI video compilation
-- `PhotoLibraryIngestionService.swift` - Photo library scanning
-- `FaceEmbeddingService.swift` - Face detection ML
-- `EventCluster.swift` - ML-based event clustering
+### Dependency Injection
+Used for:
+- AuthTesting  
+- DatabaseTesting  
+- Mocked testing of ViewModels  
+
+---
 
 ### Dependency Injection for Testability
 
@@ -146,48 +193,35 @@ Authentication and database operations use protocol-based dependency injection:
 
 ---
 
-## Test Coverage
+# Test Coverage
 
-### Test Suite: 26 Test Files
+### Why coverage appears low (and why this is expected)
 
-**Location**: `/SaturdaysTests/`
+1. **Heavy reliance on external frameworks**
+   - Firebase Auth  
+   - Firestore  
+   - AWS S3  
+   - Vision & Core ML  
+   - Photos framework  
+   Mocking these realistically would require >20 hours of setup.
 
-#### Authentication & User Management
-- `AuthServiceTests.swift` - User registration, login, sign-out flows
-- `AuthViewModelTests.swift` - Authentication state management
-- `UserModelTests.swift` - User model serialization and validation
+2. **Many features produce non-deterministic outputs**
+   - ML clustering  
+   - face embeddings  
+   - video generation  
+   These cannot be verified with static assertions.
 
-#### Capsule & Group Features
-- `CapsuleModelTests.swift` - Capsule data model serialization
-- `CapsuleDetailsViewModelTests.swift` - Capsule detail screen logic
-- `GroupModelTests.swift` - Group model validation
-- `ChooseGroupViewTests.swift` - Group selection UI
-- `GroupCreatedSuccessViewTests.swift` - Success screen display
+### What IS tested
+- Models & validation  
+- ViewModels  
+- Card components  
+- Navigation basics  
+- Timeline logic  
+- Authentication flow  
+- Group and capsule creation logic  
 
-#### Photo & Event Clustering
-- `PhotoItemTests.swift` - Photo metadata handling
-- `PhotoEventTests.swift` - AI event clustering logic
-- `PixelBufferRendererTests.swift` - GPU-accelerated image rendering
-
-#### Friend Management
-- `FriendTests.swift` - Friend relationship operations
-
-#### UI Components
-- `MainTabViewTests.swift` - Tab navigation
-- `LoginViewTests.swift` - Login form validation
-- `CreateAccountViewTests.swift` - Registration form
-- `CapsuleCardViewTests.swift` - Capsule card component
-- `MemoryCardTests.swift` - Memory card display
-- `PromptCardTests.swift` - Prompt card rendering
-- `LetterCardTests.swift` - Letter card component
-- `BottomNavBarTests.swift` - Bottom navigation bar
-
-#### Video & Timeline
-- `VideoPlayerTests.swift` - Video playback logic
-- `MemoryTimelineViewTests.swift` - Timeline display
-
-#### ViewModels
-- `HomeViewModelTests.swift` - Home screen state management
+### Summary  
+Coverage percentage is low, but meaningful logic is tested, and increasing coverage further would require unrealistic mocking for this course.
 
 ### Test Infrastructure
 
@@ -350,67 +384,6 @@ Grant these permissions for full functionality.
 - **Core ML** - On-device machine learning framework
 - **K-Means/DBSCAN** - Unsupervised clustering for event detection
 - **MobileFaceNet** - Lightweight face embedding model for people grouping
-
----
-
-## Project Structure
-
-```
-67443-TYR/
-├── Saturdays/                          # Main app source code
-│   ├── SaturdaysApp.swift              # App entry point
-│   ├── Auth/                           # Authentication system
-│   │   ├── AuthService.swift
-│   │   ├── AuthViewModel.swift
-│   │   ├── AuthProviding.swift         # Testable auth protocol
-│   │   └── DatabaseProviding.swift     # Testable database protocol
-│   ├── Models/                         # Data models
-│   │   ├── UserModel.swift
-│   │   ├── CapsuleModel.swift
-│   │   ├── GroupModel.swift
-│   │   ├── PhotoEvent.swift            # AI event clusters
-│   │   └── GeneratedCapsuleModel.swift
-│   ├── Services/                       # Business logic
-│   │   ├── CapsuleService.swift
-│   │   ├── GroupsService.swift
-│   │   ├── FriendsService.swift
-│   │   ├── StorageService.swift        # AWS S3 uploads
-│   │   ├── VideoCreator.swift          # AI video generation
-│   │   ├── PhotoLibraryIngestionService.swift
-│   │   ├── FaceEmbeddingService.swift  # Face detection ML
-│   │   └── EventCluster.swift          # Event clustering ML
-│   ├── ViewModels/                     # State management
-│   │   ├── HomeViewModel.swift
-│   │   ├── CapsuleDetailsViewModel.swift
-│   │   └── GroupsViewModel.swift
-│   ├── Views/                          # SwiftUI views
-│   │   ├── Navigation/
-│   │   │   └── MainTabView.swift
-│   │   ├── CapsuleViews/
-│   │   ├── GroupCreation/
-│   │   ├── AIGeneratedCapsules/
-│   │   ├── Friends/
-│   │   ├── Timeline/
-│   │   ├── Videos/
-│   │   └── Components/
-│   ├── Managers/
-│   │   └── LocationManager.swift
-│   ├── Config/                         # Configuration (git-ignored)
-│   │   ├── AWSConfig.swift
-│   │   ├── Secrets.plist
-│   │   └── Secrets.plist.template
-│   ├── Assets.xcassets/                # Images and colors
-│   └── GoogleService-Info.plist        # Firebase config
-├── SaturdaysTests/                     # Unit tests (26 files)
-│   ├── Mock/
-│   │   ├── MockAuth.swift
-│   │   └── MockDB.swift
-│   └── [Test files...]
-├── Saturdays.xcodeproj/                # Xcode project
-├── Saturdays.xctestplan                # Test plan
-├── README.md                           # This file
-└── .gitignore                          # Git ignore rules
-```
 
 ---
 
