@@ -150,14 +150,27 @@ final class PhotoLibraryIngestionService {
             return nil
         }
 
-        // 4. Build entry
+        // 4. Get face identifiers from Photos framework
+        let faceIDs = await FaceEmbeddingService.shared.getFaceIdentifiers(for: asset)
+
+        // 5. Generate embedding from face IDs
+        let faceEmbedding: [Float]?
+        if let faceIDs = faceIDs {
+            faceEmbedding = FaceEmbeddingService.shared.generateEmbeddingFromFaceIDs(faceIDs)
+            print("✅ [Embedding] Generated face embedding for \(asset.localIdentifier) from \(faceIDs.count) face(s)")
+        } else {
+            faceEmbedding = nil
+            print("ℹ️ [Embedding] No faces detected in \(asset.localIdentifier)")
+        }
+
+        // 6. Build entry
         return PhotoMetadataCacheEntry(
             id: asset.localIdentifier,
             timestamp: asset.creationDate ?? Date(),
             latitude: asset.location?.coordinate.latitude,
             longitude: asset.location?.coordinate.longitude,
             thumbnailFilename: filename,
-            faceEmbedding: nil,
+            faceEmbedding: faceEmbedding,
             sceneEmbedding: nil
         )
     }

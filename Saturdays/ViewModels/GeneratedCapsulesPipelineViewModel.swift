@@ -76,9 +76,10 @@ final class GeneratedCapsulesPipelineViewModel: ObservableObject {
     private func processCachedPhotos(_ entries: [PhotoMetadataCacheEntry]) {
         print("🧠 [Pipeline] Processing \(entries.count) cached photos...")
 
-        // ---- FACE CLUSTERING (placeholder) ----
-        let faceClusters = FaceClusterService.shared.clusterFacesHardcoded(from: entries)
-        _ = faceClusters
+        // ---- FACE CLUSTERING (using embeddings) ----
+        let faceClusters = FaceClusterService.shared.clusterFacesByEmbedding(from: entries)
+        print("🙂 [Pipeline] Generated \(faceClusters.count) face clusters")
+        // TODO: Store faceClusters or publish them to UI
 
         // ---- EVENT CLUSTERING ----
         let eventClusters = EventClusterService.shared.clusterEventsHardcoded(from: entries)
