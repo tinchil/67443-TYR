@@ -149,6 +149,12 @@ struct AddLettersView: View {
                 if success {
                     print("✅ Added 1 new letter to capsule")
 
+                    // Log activity
+                    ActivityService.shared.logLetterAdded(
+                        capsuleID: existing.id,
+                        capsuleName: existing.name
+                    )
+
                     // Call the callback to notify parent view
                     onLetterAdded?(updatedLetters)
 
@@ -185,6 +191,13 @@ struct AddLettersView: View {
             }
 
             print("✅ Letter capsule created with ID: \(capsuleID)")
+
+            // Log activity
+            ActivityService.shared.logLetterAdded(
+                capsuleID: capsuleID,
+                capsuleName: capsuleVM.capsule.name
+            )
+
             showSuccessView = true
         }
     }

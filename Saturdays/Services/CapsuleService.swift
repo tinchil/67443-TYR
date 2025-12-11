@@ -74,13 +74,24 @@ class CapsuleService {
             "capsuleIDs": FieldValue.arrayUnion([capsuleID])
         ], forDocument: groupRef, merge: true)
 
-        batch.commit { error in
+        batch.commit { [weak self] error in
             if let error = error {
                 print("❌ Error creating capsule: \(error.localizedDescription)")
                 completion(nil)
             } else {
                 print("✅ Capsule '\(name)' created successfully with ID: \(capsuleID)")
                 print("📋 Added to group: \(groupID)")
+
+                // Log activity - fetch group name first
+                self?.db.collection("groups").document(groupID).getDocument { snapshot, _ in
+                    let groupName = snapshot?.data()?["name"] as? String ?? "Unknown Group"
+                    ActivityService.shared.logCapsuleCreated(
+                        capsuleID: capsuleID,
+                        capsuleName: name,
+                        groupName: groupName
+                    )
+                }
+
                 completion(capsuleID)
             }
         }
