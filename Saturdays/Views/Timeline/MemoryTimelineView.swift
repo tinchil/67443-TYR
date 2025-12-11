@@ -207,6 +207,8 @@ struct TimelineEventRow: View {
         case "purple": return .purple
         case "orange": return .orange
         case "pink": return .pink
+        case "indigo": return .indigo
+        case "yellow": return .yellow
         default: return .blue
         }
     }

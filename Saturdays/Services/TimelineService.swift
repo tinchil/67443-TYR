@@ -28,6 +28,8 @@ class TimelineService {
         var events: [TimelineEvent] = []
         let group = DispatchGroup()
 
+        // MARK: Fetch Milestones (First-time events)
+
         // 1. Account Created
         group.enter()
         fetchAccountCreatedEvent { event in
@@ -73,10 +75,19 @@ class TimelineService {
             group.leave()
         }
 
+        // MARK: Fetch Activities (Recurring events)
+
+        // 6. Capsule Activities (created, photo added, revealed, etc.)
+        group.enter()
+        ActivityService.shared.fetchActivities { activities in
+            events.append(contentsOf: activities)
+            group.leave()
+        }
+
         group.notify(queue: .main) {
             // Sort by date (oldest first)
             let sortedEvents = events.sorted { $0.date < $1.date }
-            print("📅 Fetched \(sortedEvents.count) timeline events")
+            print("📅 Fetched \(sortedEvents.count) timeline events (\(events.filter { $0.type.rawValue.contains("first") }.count) milestones + \(events.filter { !$0.type.rawValue.contains("first") && $0.type != .accountCreated }.count) activities)")
             completion(sortedEvents)
         }
     }

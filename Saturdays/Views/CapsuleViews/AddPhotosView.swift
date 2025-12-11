@@ -209,6 +209,14 @@ struct AddPhotosView: View {
 
                     if success {
                         print("✅ Capsule media updated with \(uploadedURLs.count) photos")
+
+                        // Log activity
+                        ActivityService.shared.logPhotoAdded(
+                            capsuleID: capsuleID,
+                            capsuleName: capsuleVM.capsule.name,
+                            photoCount: uploadedURLs.count
+                        )
+
                         showSuccessView = true
                     } else {
                         print("❌ Failed to update capsule media")
