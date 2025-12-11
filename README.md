@@ -32,18 +32,18 @@ Users upload photos into shared capsules that unlock on a future date, turning e
 - **AI-Generated Unlock Videos** when capsules open
 - **Smart Discovery** of hidden memories through ML clustering and historical timelines
 
-### Note on Video Playback (Simulator vs Physical Device)
+### Platform Limitations (Video, Notifications, Face Clustering)
 
-During development, we discovered that **video playback behaves differently on the Simulator compared to a real iPhone**.
+During development, we encountered several platform-related constraints that affect certain features:
 
-- The Simulator uses macOS video codecs  
-- A physical iPhone uses iOS hardware decoders  
+- **Video Playback (Simulator vs Device)**  
+  The Simulator uses macOS codecs, while real iPhones use hardware decoders. Some AI-generated S3 videos (non-baseline H.264 profiles, missing audio tracks, etc.) play correctly on the Simulator but may freeze or fail on physical devices. This is a known AVFoundation limitation.
 
-If the uploaded S3 video is encoded with a codec or container not supported by iOS hardware (e.g., certain H.264 profiles, missing audio tracks, incorrect MIME types), the **Simulator will still play the video**, but a **real iPhone will freeze** or fail to start playback.
+- **Push Notifications**  
+  Actual device push notifications (APNs + Firebase Cloud Messaging) require a paid Apple Developer account ($99/year). APNs registration is not possible without this paid tier, so real push notifications are disabled.
 
-This is a known AVFoundation behavior.
-
-Our AI-generated video pipeline works on the Simulator but may not always match iOS hardware playback requirements, leading to this discrepancy on physical devices.
+- **Face Clustering (Vision + MobileFaceNet)**  
+  Apple does not expose a public API for extracting reusable face embeddings. We attempted MobileFaceNet conversion, but iOS restrictions on full-resolution photo access + embedding extraction caused inconsistent behavior. As a result, face clustering is not as reliable as we'd like it to be.
 
 
 ---
@@ -63,9 +63,9 @@ Unlike Instagram, TikTok, or Google Photos, Saturdays is designed for:
 - Long-term anticipation and shared nostalgia  
 
 It sits at the intersection of:
-- **BeReal** → authenticity  
-- **1 Second Everyday** → memory  
-- **Google Photos** → archival  
+- **BeReal**: authenticity  
+- **1 Second Everyday**: memory  
+- **Google Photos**: archival  
 
 But uniquely combines:
 1. **Collaboration**  
