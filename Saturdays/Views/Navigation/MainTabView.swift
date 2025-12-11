@@ -1,21 +1,23 @@
 import SwiftUI
 
 struct MainTabView: View {
-    @Binding var selectedTab: Tab
-    @Binding var showCreateOverlay: Bool
+    // The REAL source of truth
+    @State private var selectedTab: Tab
+    @State private var showCreateOverlay: Bool
+    
     @StateObject private var homeVM = HomeViewModel()
     @State private var showCreateCapsule = false
 
-    // NORMAL APP ENTRYPOINT
+    // MARK: - Production initializer (default values)
     init() {
-        self._selectedTab = .constant(.home)
-        self._showCreateOverlay = .constant(false)
+        self._selectedTab = State(initialValue: .home)
+        self._showCreateOverlay = State(initialValue: false)
     }
 
-    // TEST ENTRYPOINT
-    init(selectedTab: Binding<Tab>, showCreateOverlay: Binding<Bool>) {
-        self._selectedTab = selectedTab
-        self._showCreateOverlay = showCreateOverlay
+    // MARK: - Test initializer (injects initial state)
+    init(selectedTab: Tab, showCreateOverlay: Bool) {
+        self._selectedTab = State(initialValue: selectedTab)
+        self._showCreateOverlay = State(initialValue: showCreateOverlay)
     }
 
     var body: some View {
