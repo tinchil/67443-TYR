@@ -9,7 +9,9 @@ import SwiftUI
 
 struct CapsuleCreateOverlay: View {
     var dismiss: () -> Void
-    
+    var onMemoryTap: () -> Void
+    var onLetterTap: () -> Void
+
     var body: some View {
         VStack(spacing: 28) {
             
@@ -22,43 +24,53 @@ struct CapsuleCreateOverlay: View {
                 .padding(.top, 10)
 
             HStack(spacing: 40) {
-                
+
                 // MEMORY BUTTON
-                VStack {
-                    ZStack {
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 110, height: 110)
-                            .shadow(radius: 8)
-                        
-                        Image(systemName: "camera")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 50, height: 38)
-                            .foregroundColor(.black)
+                Button {
+                    onMemoryTap()
+                    dismiss()
+                } label: {
+                    VStack {
+                        ZStack {
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 110, height: 110)
+                                .shadow(radius: 8)
+
+                            Image(systemName: "camera")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 50, height: 38)
+                                .foregroundColor(.black)
+                        }
+                        Text("Memory")
+                            .foregroundColor(.white)
+                            .font(.headline)
                     }
-                    Text("Memory")
-                        .foregroundColor(.white)
-                        .font(.headline)
                 }
-                
+
                 // LETTER BUTTON
-                VStack {
-                    ZStack {
-                        Circle()
-                            .fill(Color.white)
-                            .frame(width: 110, height: 110)
-                            .shadow(radius: 8)
-                        
-                        Image(systemName: "pencil")
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 42, height: 42)
-                            .foregroundColor(.black)
+                Button {
+                    onLetterTap()
+                    dismiss()
+                } label: {
+                    VStack {
+                        ZStack {
+                            Circle()
+                                .fill(Color.white)
+                                .frame(width: 110, height: 110)
+                                .shadow(radius: 8)
+
+                            Image(systemName: "pencil")
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 42, height: 42)
+                                .foregroundColor(.black)
+                        }
+                        Text("Letter")
+                            .foregroundColor(.white)
+                            .font(.headline)
                     }
-                    Text("Letter")
-                        .foregroundColor(.white)
-                        .font(.headline)
                 }
             }
             

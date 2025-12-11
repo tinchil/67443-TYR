@@ -23,6 +23,7 @@ class CapsuleService {
         type: CapsuleType,
         groupID: String,
         mediaURLs: [String] = [],
+        letters: [LetterModel] = [],
         revealDate: Date? = nil,
         minContribution: Int? = nil,
         completion: @escaping (String?) -> Void
@@ -33,6 +34,17 @@ class CapsuleService {
         // Create the capsule document in capsules collection
         let capsuleRef = db.collection("capsules").document(capsuleID)
 
+        // Convert letters to dictionaries for Firestore
+        let lettersData = letters.map { letter -> [String: Any] in
+            return [
+                "id": letter.id,
+                "authorID": letter.authorID,
+                "authorName": letter.authorName,
+                "message": letter.message,
+                "createdAt": letter.createdAt
+            ]
+        }
+
         var data: [String: Any] = [
             "id": capsuleID,
             "name": name,
@@ -41,6 +53,7 @@ class CapsuleService {
             "createdBy": currentUserID,
             "createdAt": Date(),
             "mediaURLs": mediaURLs,
+            "letters": lettersData,
             "finalVideoURL": NSNull(),
             "coverPhotoURL": NSNull()
         ]
@@ -87,6 +100,36 @@ class CapsuleService {
                 completion(false)
             } else {
                 print("✅ Updated capsule media: \(mediaURLs.count) URLs")
+                completion(true)
+            }
+        }
+    }
+
+    // MARK: - UPDATE CAPSULE LETTERS
+    func updateCapsuleLetters(
+        capsuleID: String,
+        letters: [LetterModel],
+        completion: @escaping (Bool) -> Void
+    ) {
+        // Convert letters to dictionaries for Firestore
+        let lettersData = letters.map { letter -> [String: Any] in
+            return [
+                "id": letter.id,
+                "authorID": letter.authorID,
+                "authorName": letter.authorName,
+                "message": letter.message,
+                "createdAt": letter.createdAt
+            ]
+        }
+
+        db.collection("capsules").document(capsuleID).updateData([
+            "letters": lettersData
+        ]) { error in
+            if let error = error {
+                print("❌ Error updating capsule letters: \(error.localizedDescription)")
+                completion(false)
+            } else {
+                print("✅ Updated capsule letters: \(letters.count) letters")
                 completion(true)
             }
         }

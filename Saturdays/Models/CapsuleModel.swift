@@ -17,6 +17,7 @@ struct CapsuleModel: Identifiable, Codable, Sendable {
     var createdBy: String                   // UID of creator
     var createdAt: Date                     // When created
     var mediaURLs: [String]                 // URLs of uploaded images/videos
+    var letters: [LetterModel]              // Letters for letter capsules
     var finalVideoURL: String?              // URL of the compiled final video
     var coverPhotoURL: String?              // URL of cover photo
     var revealDate: Date?
@@ -31,6 +32,7 @@ struct CapsuleModel: Identifiable, Codable, Sendable {
         createdBy: String = Auth.auth().currentUser?.uid ?? "",
         createdAt: Date = Date(),
         mediaURLs: [String] = [],
+        letters: [LetterModel] = [],
         finalVideoURL: String? = nil,
         coverPhotoURL: String? = nil
     ) {
@@ -41,6 +43,7 @@ struct CapsuleModel: Identifiable, Codable, Sendable {
         self.createdBy = createdBy
         self.createdAt = createdAt
         self.mediaURLs = mediaURLs
+        self.letters = letters
         self.finalVideoURL = finalVideoURL
         self.coverPhotoURL = coverPhotoURL
         self.revealDate = nil

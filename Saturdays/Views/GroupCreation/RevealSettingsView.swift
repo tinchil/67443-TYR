@@ -11,7 +11,7 @@ struct RevealSettingsView: View {
 
     @State private var revealDate = Date()
     @State private var minContributions: Int = 0
-    @State private var navigateToPhotos = false
+    @State private var navigateToContent = false
 
     var body: some View {
         VStack(spacing: 30) {
@@ -33,29 +33,36 @@ struct RevealSettingsView: View {
             }
             .padding(.horizontal)
 
-            // MARK: - CONTRIBUTION REQUIREMENT
-            VStack(alignment: .leading, spacing: 12) {
-                Text("Minimum Contributions (optional)")
-                    .font(.headline)
+            // MARK: - CONTRIBUTION REQUIREMENT (Memory Capsules Only)
+            if capsuleVM.capsule.type == .memory {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Minimum Contributions (optional)")
+                        .font(.headline)
 
-                Picker("Requirement", selection: $minContributions) {
-                    Text("None").tag(0)
-                    Text("1 Photo Each").tag(1)
-                    Text("3 Photos Each").tag(3)
-                    Text("5 Photos Each").tag(5)
+                    Picker("Requirement", selection: $minContributions) {
+                        Text("None").tag(0)
+                        Text("1 Photo Each").tag(1)
+                        Text("3 Photos Each").tag(3)
+                        Text("5 Photos Each").tag(5)
+                    }
+                    .pickerStyle(.segmented)
                 }
-                .pickerStyle(.segmented)
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
 
             // MARK: - CONTINUE
             Button {
                 capsuleVM.capsule.revealDate = revealDate
 
-                capsuleVM.capsule.minContribution =
-                    (minContributions == 0 ? nil : minContributions)
+                // Only set minContribution for memory capsules
+                if capsuleVM.capsule.type == .memory {
+                    capsuleVM.capsule.minContribution =
+                        (minContributions == 0 ? nil : minContributions)
+                } else {
+                    capsuleVM.capsule.minContribution = nil
+                }
 
-                navigateToPhotos = true
+                navigateToContent = true
             } label: {
                 Text("Continue")
                     .font(.headline)
@@ -71,8 +78,13 @@ struct RevealSettingsView: View {
         }
         .navigationTitle("Reveal Settings")
         .navigationBarTitleDisplayMode(.inline)
-        .navigationDestination(isPresented: $navigateToPhotos) {
-            AddPhotosView(capsuleVM: capsuleVM)
+        .navigationDestination(isPresented: $navigateToContent) {
+            // Route based on capsule type
+            if capsuleVM.capsule.type == .memory {
+                AddPhotosView(capsuleVM: capsuleVM)
+            } else {
+                AddLettersView(capsuleVM: capsuleVM)
+            }
         }
     }
 }

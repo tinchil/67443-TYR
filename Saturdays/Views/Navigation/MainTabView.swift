@@ -63,9 +63,12 @@ import SwiftUI
 struct MainTabView: View {
     @State public var selectedTab: Tab = .home
     @State public var showCreateOverlay = false
-    
+    @StateObject private var homeVM = HomeViewModel()
+    @State private var showCreateCapsule = false
+
     var body: some View {
-        ZStack {
+        NavigationStack {
+            ZStack {
             
             // MAIN CONTENT (stays visible)
             Group {
@@ -102,13 +105,30 @@ struct MainTabView: View {
                         }
                     }
                 
-                CapsuleCreateOverlay {
-                    withAnimation(.easeInOut(duration: 0.25)) {
-                        showCreateOverlay = false
+                CapsuleCreateOverlay(
+                    dismiss: {
+                        withAnimation(.easeInOut(duration: 0.25)) {
+                            showCreateOverlay = false
+                        }
+                    },
+                    onMemoryTap: {
+                        homeVM.startCapsule(type: .memory)
+                        showCreateCapsule = true
+                    },
+                    onLetterTap: {
+                        homeVM.startCapsule(type: .letter)
+                        showCreateCapsule = true
                     }
-                }
+                )
                 .transition(.opacity.combined(with: .scale))
             }
+        }
+        .navigationDestination(isPresented: $showCreateCapsule) {
+            CapsuleDetailsView(viewModel: homeVM.currentCapsuleVM)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: NSNotification.Name("DismissCapsuleFlow"))) { _ in
+            showCreateCapsule = false
+        }
         }
     }
 }

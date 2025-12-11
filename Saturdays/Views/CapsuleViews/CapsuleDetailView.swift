@@ -38,10 +38,15 @@ struct CapsuleDetailView: View {
 
                     capsuleInfoSection
 
-                    Divider().padding(.horizontal)   // ✅ FIXED: closed parentheses
+                    Divider().padding(.horizontal)
 
-                    if !currentMediaURLs.isEmpty {
-                        contributionSection
+                    // Show photos for memory capsules, letters for letter capsules
+                    if capsule.type == .memory {
+                        if !currentMediaURLs.isEmpty {
+                            contributionSection
+                        }
+                    } else {
+                        lettersSection
                     }
 
                     Divider().padding(.horizontal)
@@ -113,8 +118,11 @@ struct CapsuleDetailView: View {
                     Label("Reveals on \(formattedDate(date))", systemImage: "clock")
                         .foregroundColor(.gray)
                 }
-                Label("Minimum contributions: \(capsule.minContribution ?? 0)", systemImage: "person.3")
-                    .foregroundColor(.gray)
+                // Only show minimum contributions for memory capsules
+                if capsule.type == .memory {
+                    Label("Minimum contributions: \(capsule.minContribution ?? 0)", systemImage: "person.3")
+                        .foregroundColor(.gray)
+                }
             }
             .font(.subheadline)
         }
@@ -203,6 +211,71 @@ struct CapsuleDetailView: View {
                 HStack {
                     Image(systemName: "plus.circle.fill")
                     Text("Add Photos")
+                }
+                .foregroundColor(.indigo)
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.indigo.opacity(0.1))
+                .cornerRadius(12)
+            }
+            .padding(.horizontal)
+        }
+    }
+
+    // ----------------------------------------------------------
+    // MARK: - LETTERS SECTION
+    // ----------------------------------------------------------
+
+    private var lettersSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+
+            Text("Letters")
+                .font(.headline)
+                .padding(.horizontal)
+
+            if capsule.letters.isEmpty {
+                VStack(spacing: 12) {
+                    Image(systemName: "envelope")
+                        .font(.system(size: 40))
+                        .foregroundColor(.gray)
+
+                    Text("No letters yet")
+                        .font(.subheadline)
+                        .foregroundColor(.gray)
+
+                    Text("Be the first to write a letter to the group")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding()
+                .background(Color.gray.opacity(0.1))
+                .cornerRadius(12)
+                .padding(.horizontal)
+            } else {
+                ScrollView {
+                    VStack(spacing: 12) {
+                        ForEach(capsule.letters) { letter in
+                            LetterCardView(letter: letter)
+                        }
+                    }
+                }
+                .frame(maxHeight: 400)
+                .padding(.horizontal)
+            }
+
+            // Add Letter Button
+            NavigationLink(destination: AddLettersView(
+                capsuleVM: CapsuleDetailsViewModel(capsule: capsule),
+                existingCapsule: capsule,
+                onLetterAdded: { updatedLetters in
+                    capsule.letters = updatedLetters
+                }
+            )) {
+                HStack {
+                    Image(systemName: "plus.circle.fill")
+                    Text("Add Letter")
                 }
                 .foregroundColor(.indigo)
                 .frame(maxWidth: .infinity)
@@ -486,5 +559,48 @@ struct EditCapsuleSheet: View {
         capsuleService.updateCapsuleName(capsuleID: capsule.id, name: capsuleName) { success in
             if success { dismiss() }
         }
+    }
+}
+
+// MARK: - LETTER CARD VIEW
+struct LetterCardView: View {
+    let letter: LetterModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(letter.authorName)
+                        .font(.headline)
+                        .foregroundColor(Color(red: 0/255, green: 0/255, blue: 142/255))
+
+                    Text(formattedDate(letter.createdAt))
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                }
+
+                Spacer()
+
+                Image(systemName: "envelope.fill")
+                    .foregroundColor(Color(red: 0/255, green: 0/255, blue: 142/255).opacity(0.6))
+            }
+
+            Text(letter.message)
+                .font(.body)
+                .foregroundColor(.primary)
+                .lineLimit(nil)
+                .multilineTextAlignment(.leading)
+        }
+        .padding()
+        .background(Color(UIColor.systemBackground))
+        .cornerRadius(12)
+        .shadow(color: .gray.opacity(0.2), radius: 4, x: 0, y: 2)
+    }
+
+    private func formattedDate(_ date: Date) -> String {
+        let f = DateFormatter()
+        f.dateStyle = .medium
+        f.timeStyle = .short
+        return f.string(from: date)
     }
 }
