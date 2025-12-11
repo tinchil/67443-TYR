@@ -1,58 +1,76 @@
-//
-//  VideoPlayerTests.swift
-//  Saturdays
-//
-//  Created by Yining He  on 12/7/25.
-//
-
 import Testing
 import SwiftUI
+import ViewInspector
 @testable import Saturdays
 
+extension VideoPlayerView: Inspectable {}
+
 @MainActor
-struct VideoPlayerTests {
+struct VideoPlayerViewTests {
 
     @Test
-    func testVideoPlayerInitializerStoresValues() throws {
-        let url = URL(string: "https://example.com/video.mp4")!
-        let title = "Test Title"
-        let desc = "Test Description"
-        let date = Date()
+    func testTapTogglesPlayback() throws {
+        let spy = PlayerSpy()
 
         let view = VideoPlayerView(
-            url: url,
-            capsuleTitle: title,
-            capsuleDescription: desc,
-            revealDate: date
+            url: URL(string: "https://example.com")!,
+            capsuleTitle: nil,
+            capsuleDescription: nil,
+            revealDate: nil,
+            makePlayer: { spy }
         )
 
-        #expect(view.url == url)
-        #expect(view.capsuleTitle == title)
-        #expect(view.capsuleDescription == desc)
-        #expect(view.revealDate == date)
+        ViewHosting.host(view: view)
+        let inspected = try view.inspect()
+
+        // trigger .onAppear → setupPlayer()
+        try inspected.callOnAppear()
+
+        // Wait for async .play()
+        RunLoop.main.run(until: Date().addingTimeInterval(0.2))
+
+        // Find the VideoPlayer in the ZStack
+        let videoPlayer = try inspected
+            .find(VideoPlayer.self)
+
+        // Tap the gesture on VideoPlayer
+        try videoPlayer.callOnTapGesture()
+
+        #expect(spy.pauseCalled == true)
     }
 
     @Test
-    func testVideoPlayerViewIsUIViewControllerRepresentable() throws {
-        // We cannot call makeUIViewController() because context cannot be created.
-        // But we CAN assert protocol conformance.
+    func testPlayerCreatedAndPlayed() throws {
+        let spy = PlayerSpy()
+
         let view = VideoPlayerView(
-            url: URL(string:"https://example.com/video.mp4")!,
-            capsuleTitle: "A",
-            capsuleDescription: "B",
-            revealDate: .now
+            url: URL(string: "https://example.com")!,
+            capsuleTitle: nil,
+            capsuleDescription: nil,
+            revealDate: nil,
+            makePlayer: { spy }
         )
 
-        // Check conformance
-        #expect(view is UIViewControllerRepresentable)
+        // .onAppear fires automatically
+        ViewHosting.host(view: view)
+
+        // The spy must have been told to play()
+        #expect(spy.playCalled == true)
     }
 
     @Test
-    func testVideoPlayerViewTypeInfo() throws {
-        // A simple structural reflection test
-        let mirror = Mirror(reflecting: VideoPlayerView.self)
+    func testPlaceholderBeforeAppear() throws {
+        let view = VideoPlayerView(
+            url: URL(string: "https://example.com")!,
+            capsuleTitle: nil,
+            capsuleDescription: nil,
+            revealDate: nil
+        )
 
-        // The type should be a struct
-        #expect(mirror.displayStyle == .struct)
+        ViewHosting.host(view: view)
+        let inspected = try view.inspect()
+
+        // ProgressView should appear before the AVPlayer is set
+        #expect(try inspected.find(ViewType.ProgressView.self) != nil)
     }
 }

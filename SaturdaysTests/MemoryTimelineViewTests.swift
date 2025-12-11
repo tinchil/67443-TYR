@@ -143,22 +143,22 @@ struct MemoryTimelineViewTests {
         let row = TimelineEventRow(event: event, isFirst: true, isLast: false)
         ViewHosting.host(view: row)
 
-        // Should NOT find the first Shape (top line)
+        // Instead of looking for ANY shape, we target the top-line specifically
         #expect(throws: Error.self) {
-            _ = try row.inspect().find(ViewType.Shape.self)
+            _ = try row.inspect().find(viewWithId: "topLine")
         }
     }
 
-    // LAST ROW hides bottom line
     @Test
     func testLastRowHidesBottomLine() throws {
         let event = makeEvent()
         let row = TimelineEventRow(event: event, isFirst: false, isLast: true)
         ViewHosting.host(view: row)
 
-        // Should still find at least ONE shape (the top line)
-        let shape = try row.inspect().find(ViewType.Shape.self)
-        #expect(shape != nil)
+        // bottomLine should not exist
+        #expect(throws: Error.self) {
+            _ = try row.inspect().find(viewWithId: "bottomLine")
+        }
     }
 
     // DATE FORMATTING

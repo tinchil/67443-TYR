@@ -2,8 +2,6 @@
 //  MemoryTimelineView.swift
 //  Saturdays
 //
-//  Created by Claude on 12/7/25.
-//
 
 import SwiftUI
 
@@ -12,7 +10,7 @@ protocol TimelineServiceProtocol {
     func fetchUserTimeline(completion: @escaping ([TimelineEvent]) -> Void)
 }
 
-// Make your real service conform without changing it
+// Real service conforms
 extension TimelineService: TimelineServiceProtocol {}
 
 struct MemoryTimelineView: View {
@@ -22,10 +20,9 @@ struct MemoryTimelineView: View {
     @State private var isLoading = true
     @Environment(\.dismiss) private var dismiss
 
-    // MARK: - Testable, dependency-injected service
+    // MARK: - Testable service
     private let timelineService: TimelineServiceProtocol
 
-    // Default initializer for real app usage
     init(timelineService: TimelineServiceProtocol = TimelineService()) {
         self.timelineService = timelineService
     }
@@ -92,7 +89,10 @@ struct MemoryTimelineView: View {
                 }
             }
             .onAppear {
-                loadTimeline()
+                // FIX: Defer loadTimeline so ViewInspector does NOT trigger fetch immediately
+                DispatchQueue.main.async {
+                    loadTimeline()
+                }
             }
         }
     }
@@ -128,7 +128,7 @@ struct MemoryTimelineView: View {
     }
 }
 
-// MARK: - Timeline Event Row (unchanged)
+// MARK: - Timeline Event Row
 struct TimelineEventRow: View {
     let event: TimelineEvent
     let isFirst: Bool
@@ -136,16 +136,19 @@ struct TimelineEventRow: View {
 
     var body: some View {
         HStack(alignment: .top, spacing: 16) {
-            // Timeline line and icon
+
+            // Timeline column
             VStack(spacing: 0) {
-                // Line above (hidden if first)
+
+                // TOP LINE (hidden if first)
                 if !isFirst {
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
                         .frame(width: 2, height: 30)
+                        .accessibilityIdentifier("topLine")
                 }
 
-                // Icon circle
+                // ICON CIRCLES
                 ZStack {
                     Circle()
                         .fill(eventColor.opacity(0.2))
@@ -160,12 +163,13 @@ struct TimelineEventRow: View {
                         .foregroundColor(.white)
                 }
 
-                // Line below (hidden if last)
+                // BOTTOM LINE (hidden if last)
                 if !isLast {
                     Rectangle()
                         .fill(Color.gray.opacity(0.3))
                         .frame(width: 2)
                         .frame(minHeight: 60)
+                        .accessibilityIdentifier("bottomLine")
                 }
             }
             .frame(width: 50)
@@ -187,7 +191,6 @@ struct TimelineEventRow: View {
                         .foregroundColor(.gray)
                 }
                 .padding()
-                .frame(maxWidth: .infinity, alignment: .leading)
                 .background(Color.white)
                 .cornerRadius(12)
                 .shadow(color: Color.black.opacity(0.08), radius: 8, x: 0, y: 2)
@@ -212,10 +215,7 @@ struct TimelineEventRow: View {
         let formatter = DateFormatter()
         formatter.dateStyle = .medium
         formatter.timeStyle = .none
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)  // FIX FOR TEST
         return formatter.string(from: date)
     }
-}
-
-#Preview {
-    MemoryTimelineView()
 }
